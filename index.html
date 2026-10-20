@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Simon Says Seans Rehberim</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: brand bar → bölüm bands (Giriş, ÇK1–ÇK4) each with a grid of session cards → session view with three phase tabs (Hazırlan / Uygula / Tamamla). */
+:root{
+  --bg:#F5F7F7; --surface:#FFFFFF; --ink:#1E2427; --muted:#56636A; --line:#D7E0E2;
+  --c0:#56636A; --c0s:#EEF1F2;   /* Giriş */
+  --c1:#1F6F7A; --c1s:#EAF4F5;   /* ÇK1 Hatırlama */
+  --c2:#B8521C; --c2s:#FDF1E9;   /* ÇK2 Durdurma */
+  --c3:#8A3C8C; --c3s:#F5ECF5;   /* ÇK3 Değiştirme */
+  --c4:#2E5C9A; --c4s:#E8EEF7;   /* ÇK4 Planlama */
+  --pend:#8A949A;
+  --f-display:'Lexend',system-ui,sans-serif; --f-body:'Source Sans 3',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121719; --surface:#1A2124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2B373B;
+  --c0:#A9B5BA; --c0s:#222B2E; --c1:#5FB3BE; --c1s:#15302F; --c2:#E58A55; --c2s:#33221A;
+  --c3:#C98BCB; --c3s:#2E2030; --c4:#7FA6DB; --c4s:#1C2636; --pend:#7C888D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121719; --surface:#1A2124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2B373B;
+  --c0:#A9B5BA; --c0s:#222B2E; --c1:#5FB3BE; --c1s:#15302F; --c2:#E58A55; --c2s:#33221A;
+  --c3:#C98BCB; --c3s:#2E2030; --c4:#7FA6DB; --c4s:#1C2636; --pend:#7C888D; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--c1);outline-offset:2px;border-radius:8px}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand .ss{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:-.01em}
+.brand .sep{color:var(--line);font-size:22px}
+.brand .sr{font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--muted)}
+.back{margin-left:auto;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-size:14px;font-weight:600;cursor:pointer}
+.back:hover{border-color:var(--c1);color:var(--c1)}
+
+main{padding-block:24px 64px}
+.intro{display:flex;flex-direction:column;gap:6px;margin-bottom:22px;max-width:62ch}
+.intro h1{font-family:var(--f-display);font-size:clamp(24px,3.6vw,32px);line-height:1.2;margin:0;text-wrap:balance}
+.intro p{margin:0;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+
+.book{margin-top:22px}
+.bookh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--bc)}
+.bookh .tag{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc)}
+.bookh h2{font-family:var(--f-display);font-size:19px;margin:0}
+.bookh .sk{font-size:14px;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
+.card{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;min-width:0}
+.card:hover{border-color:var(--bc)}
+.num{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;color:var(--bc);min-width:34px;font-variant-numeric:tabular-nums}
+.ct{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ct b{font-family:var(--f-display);font-size:15px;font-weight:600;line-height:1.3}
+.ct .meta{font-size:13px;color:var(--muted)}
+.pill{align-self:flex-start;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;margin-top:2px}
+.pill.pend{background:var(--c0s);color:var(--pend)}
+.pill.draft{background:var(--c1s);color:var(--c1)}
+
+/* session view */
+.sv-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+.sv-num{font-family:var(--f-display);font-weight:700;font-size:56px;line-height:.9;color:var(--bc)}
+.sv-head .k{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc)}
+.sv-head h1{font-family:var(--f-display);font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:4px 0 0;text-wrap:balance}
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.tab{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.tab .n{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.tab b{font-family:var(--f-display);font-size:16px}
+.tab[aria-selected="true"]{border-color:var(--bc);background:var(--bs)}
+.tab[aria-selected="true"] .n{color:var(--bc)}
+@media (max-width:560px){.tab b{font-size:14px}.tab{padding:10px}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
+.empty{display:flex;flex-direction:column;gap:10px;align-items:flex-start;max-width:60ch}
+.empty h3{font-family:var(--f-display);margin:0;font-size:19px}
+.empty ul{margin:0;padding-left:20px;color:var(--muted)}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:14px;color:var(--muted)}
+.prog .track{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.prog .fill{height:100%;background:var(--bc);border-radius:99px;transition:width .2s}
+.grp{display:flex;flex-direction:column;gap:8px;padding-block:6px 14px;border-bottom:1px solid var(--line)}
+.grp:last-child{border-bottom:0;padding-bottom:0}
+.grp h4{font-family:var(--f-display);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc);margin:8px 0 0}
+.chk{display:flex;gap:12px;align-items:flex-start;cursor:pointer;padding:8px 10px;border-radius:10px;max-width:72ch}
+.chk:hover{background:var(--bs)}
+.chk input{appearance:none;width:22px;height:22px;border:2px solid var(--bc);border-radius:6px;flex-shrink:0;margin:1px 0 0;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
+.chk input:checked{background:var(--bc)}
+.chk input:checked::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.chk input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.act{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.act + .act{margin-top:10px}
+.acth{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.acth .an{width:30px;height:30px;border-radius:50%;background:var(--bc);color:var(--surface);font-family:var(--f-display);font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.acth b{font-family:var(--f-display);font-size:17px}
+.tags{display:flex;gap:6px;flex-wrap:wrap;font-size:13px}
+.tags span{border-radius:999px;padding:2px 10px;background:var(--bs);color:var(--bc);font-weight:600}
+.tags span.ref{background:var(--c0s);color:var(--muted)}
+.tags span.mat{background:var(--c2s);color:var(--c2)}
+.pdf{margin-left:auto;font-size:13px;font-weight:700;color:var(--bc);border:1.5px solid var(--bc);border-radius:999px;padding:1px 10px;white-space:nowrap}
+.field{display:flex;flex-direction:column;gap:4px;max-width:72ch;padding:6px 10px}
+.field label{font-weight:600;font-size:15px}
+.field input{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--ink)}
+.done-btn{margin-top:14px;border:0;background:var(--bc);color:var(--surface);border-radius:12px;padding:12px 18px;font-family:var(--f-display);font-weight:600;cursor:pointer}
+.done-msg{margin-top:10px;font-weight:600;color:var(--bc)}
+.preview{font-size:13px;color:var(--muted);margin-top:12px}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+</head>
+<body>
+<header class="bar"><div class="wrap gut">
+  <div class="brand"><span class="ss">Simon Says</span><span class="sep">|</span><span class="sr">Seans Rehberim</span></div>
+  <button class="back" id="home" type="button" hidden>← Tüm oturumlar</button>
+</div></header>
+
+<main class="gut"><div class="wrap" id="view"></div></main>
+
+<script>
+const BOOKS=[
+  {k:"c0",tag:"Giriş",name:"Programa başlangıç",sk:"Aile ve çocukla tanışma"},
+  {k:"c1",tag:"Çalışma Kitabı 1",name:"Bu Benim İpucum",sk:"Hatırlama · Çalışma Belleği"},
+  {k:"c2",tag:"Çalışma Kitabı 2",name:"Bunu Yapma!",sk:"Durdurma · Tepki Engelleme"},
+  {k:"c3",tag:"Çalışma Kitabı 3",name:"Dur… Odaklan… Değiştir",sk:"Değiştirme · Bilişsel Esneklik"},
+  {k:"c4",tag:"Çalışma Kitabı 4",name:"Bir Planım Var!",sk:"Planlama · Sonuç Odaklı Düşünme"}
+];
+const SESS=[
+  [1,0,"Aileyle Tanışma: Can'ın Hikâyesi","Yalnızca aile","draft"],
+
+  [2,0,"Simon'un Hikâyesi","Çocukla ilk oturum"],
+  [3,1,"Simon Diyor ki: Dikkat Et, Rotada Kal","Adım 1 · Oyun"],
+  [4,1,"Sabah DJ'i: İpuçları Her Yerde","Adım 2 · Bağlantı Kurma"],
+  [5,1,"İpucu Atölyesi: Kartlar ve Gizli İşaretler","Adım 3 · Ev Çalışmaları"],
+  [6,1,"Bilek Listeleri ve Hafıza Oyunları","Adım 3 · Ev Çalışmaları"],
+  [7,1,"Bravo, Başardın!","Adım 4 · Bravo"],
+  [8,2,"Simon Diyor ki: Bunu Yapma!","Adım 1 · Oyun"],
+  [9,2,"Dikkat Dağınıklığı Engelleyici Kumanda","Adım 2 · Bağlantı Kurma"],
+  [10,2,"Durmayı Eve Taşımak","Adım 3 · Ev Çalışmaları"],
+  [11,2,"Bravo, Başardın!","Adım 4 · Bravo"],
+  [12,3,"Dur… Odaklan… Değiştir!","Adım 1 · Oyun"],
+  [13,3,"Takım Oyuncusu","Adım 2 · Bağlantı Kurma"],
+  [14,3,"Lütfen Dikkat! ve Sakin Kedi","Adım 3 · Ev Çalışmaları"],
+  [15,3,"Dur, Sakinleş, Düşün","Adım 3 · Ev Çalışmaları"],
+  [16,3,"Bravo, Başardın!","Adım 4 · Bravo"],
+  [17,4,"Bir Planım Var!","Adım 1 · Oyun"],
+  [18,4,"Bir Kazanan Gibi Düşün","Adım 2 · Bağlantı Kurma"],
+  [19,4,"Kendi Oyun Planım","Adım 3 · Ev Çalışmaları"],
+  [20,4,"Bravo, Başardın! ve programın kapanışı","Adım 4 · Bravo"]
+];
+/* Oturum içerikleri. g: grup başlığı + maddeler; a: etkinlik; f: kaydedilecek alanlar. pdf: yazdırılacak belge */
+const DATA={1:[
+ [ {g:"Randevuda",i:["Aileden çocuksuz gelmesini iste; mümkünse iki ebeveyn birlikte gelsin.","Hikâyeyi önceden verme. \"Bir annenin hikâyesi üzerinden konuşacağız\" demen yeterli."]},
+   {g:"Kendin için",i:["Okuma metnini (s. 11–12) iki kez sesli oku.","5 durağı ve ailenin durumuna en yakın sahneyi işaretle."]},
+   {g:"Yazdır",i:[["Beyin Becerileri Haritası","pdf"],["Beceri Anları Kayıt Sayfası (aileye verilecek)","pdf"],["Oturum Değerlendirme ve Takip Formu","pdf"],["Okuma metni (senin kopyan)","pdf"]]},
+   {g:"Masaya",i:["4 Beceri Kontrol Kartı (Etkinlik 5'e kadar kapalı dursun)","Simon'un Dört Beyin Becerisi görseli","Çalışma Kitapları 1–4","Kalem"]},
+   {g:"Önceki oturumdan gelen",note:"Yok, bu ilk oturum."} ],
+ [ {note:"Yaklaşık 60 dakika. Çocuk yok; oturum yalnızca aileyle yapılır."},
+   {a:1,t:"Karşılama",dk:5,ref:"s. 2",i:["\"Evde sizi en çok ne yoruyor?\" diye sor.","Ailenin kullandığı kelimeleri aynen not et.","Bu aşamada çözüm önerme."]},
+   {a:2,t:"Can'ın Hikâyesi",dk:30,ref:"s. 3–5 · okuma metni s. 11–12",mat:"Okuma metni",i:["Her sahnede: oku → aynalama sorusunu sor → ailenin örneğini dinle → beceriye ad ver.","Sahne 1 · Pijamalı Can","Sahne 2 · \"Bu çocuk şımarık\"","Sahne 3 · Annenin akşamı","Sahne 4 · Video oyunu ve cepteki liste","Sahne 5 · Bilek listesi","\"Bu tam bizim çocuk\" cümlesini duyarsan aynen not et."]},
+   {a:3,t:"Beyin Becerileri Haritası",dk:8,ref:"s. 6",mat:"Görsel ve harita",i:["Simon'un Dört Beyin Becerisi görselini göster.","\"Bizim evde\" sütununu ailenin kelimeleriyle doldur.","Güçlü yanlar satırını mutlaka doldur."]},
+   {a:4,t:"Programı tanıt: Siz Koçsunuz",dk:7,ref:"s. 7",mat:"Çalışma Kitapları 1–4",i:["\"Siz Koçsunuz\" mesajını ver.","Kitapları masaya koy.","Koçun iki kuralını anlat.","Koçu belirle ve adını forma yaz."]},
+   {a:5,t:"Beceri Kontrol Kartları",dk:5,ref:"s. 8",mat:"4 Beceri Kontrol Kartı",i:["Kartları yan yana diz.","Her kartı hikâyeye bağla.","\"Hangi kart en çok işimize yarar?\" diye sor, cevabı forma yaz."]},
+   {a:6,t:"Kapanış",dk:3,ref:"s. 9",i:["Dört temel mesajı söyle.","Ev görevini ver.","Çocuğa söylenecek cümleyi yaşına göre seç (6–8 ya da 9–12)."]} ],
+ [ {g:"Aileye ver",i:["Beceri Anları Kayıt Sayfası (3 an; en az biri başarı anı olsun)","Çocuğa söylenecek cümle"]},
+   {g:"Formu doldur",i:["Uygulayıcı Notları: öne çıkan beceriler, tanıma cümlesi, hedef adayı ve seçilen kart.","Koç Raporu bu hafta doldurulmaz; aileye yalnızca gösterilir."]},
+   {g:"Sonraki oturum için kaydet",f:[["koc","Koçun adı"],["kart","Seçilen kart"],["hedef","Hedef adayı (Sahne 5)"]]},
+   {g:"2. Oturuma hazırlık",i:["Aile getirecek: Beceri Anları Kayıt Sayfası ve doldurulmuş harita.","Sen hazırlayacaksın: Simon'un Hikâyesi, Bölüm I."]},
+   {done:true} ]
+]};
+const PHASES=[["1","Seansa hazırlan"],["2","Seansı uygula"],["3","Seansı tamamla"]];
+const STATUS={pend:["pend","Hazırlanacak"],draft:["draft","İçerik onayda"]};
+const $=id=>document.getElementById(id);
+const bv=b=>`--bc:var(--${BOOKS[b].k});--bs:var(--${BOOKS[b].k}s)`;
+
+function home(){
+  $("home").hidden=true;
+  let h=`<div class="intro"><h1>Hangi oturuma hazırlanıyorsun?</h1>
+  <p>Her oturum üç bölümden oluşur: seansa hazırlan, seansı uygula, seansı tamamla. Ayrıntılı açıklamalar için basılı kılavuzu kullan.</p>
+  <div class="legend">${BOOKS.map(b=>`<span><i class="dot" style="background:var(--${b.k})"></i>${b.tag}</span>`).join("")}</div></div>`;
+  BOOKS.forEach((b,bi)=>{
+    const list=SESS.filter(s=>s[1]===bi);
+    h+=`<section class="book" style="${bv(bi)}"><div class="bookh"><span class="tag">${b.tag}</span><h2>${b.name}</h2><span class="sk">${b.sk}</span></div><div class="grid">`+
+      list.map(s=>{const st=STATUS[s[4]||"pend"];return `<button class="card" type="button" data-s="${s[0]}"><span class="num">${s[0]}</span><span class="ct"><b>${s[2]}</b><span class="meta">${s[3]}</span><span class="pill ${st[0]}">${st[1]}</span></span></button>`}).join("")+`</div></section>`;
+  });
+  $("view").innerHTML=h;
+  try{history.replaceState(null,"","#ana")}catch(e){}
+}
+function session(n,ph=0){
+  const s=SESS[n-1], b=BOOKS[s[1]];
+  $("home").hidden=false;
+  $("view").innerHTML=`<div style="${bv(s[1])}">
+   <div class="sv-head"><span class="sv-num">${n}</span><div><div class="k">${b.tag} · ${s[3]}</div><h1>${s[2]}</h1></div></div>
+   <div class="tabs" role="tablist">${PHASES.map((p,i)=>`<button class="tab" role="tab" type="button" data-ph="${i}" aria-selected="${i===ph}"><span class="n">BÖLÜM ${p[0]}</span><b>${p[1]}</b></button>`).join("")}</div>
+   <div class="panel">${DATA[n]?phase(n,ph):`<div class="empty"><h3>${PHASES[ph][1]}: hazırlanıyor</h3>
+   <p style="margin:0">Bu oturumun kontrol listesi henüz eklenmedi. İçerik, uygulama kılavuzu ve çalışma kitabından oturuma özel olarak çıkarılacak.</p></div>`}</div></div>`;
+  updProg();
+  try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
+  window.scrollTo({top:0});
+}
+const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+let mem={};
+const st=k=>mem[k]!==undefined?mem[k]:store.get(k);
+const put=(k,v)=>{mem[k]=v;store.set(k,v)};
+function item(id,txt,pdf){const on=st(id)?"checked":"";return `<label class="chk"><input type="checkbox" data-k="${id}" ${on}><span>${txt}</span>${pdf?`<span class="pdf" title="PDF bağlantısı yayında eklenecek">PDF</span>`:""}</label>`}
+function phase(n,ph){
+  const P=DATA[n][ph]; let h=`<div class="prog"><span id="pt"></span><div class="track"><div class="fill" id="pf"></div></div></div>`;
+  P.forEach((b,bi)=>{
+    const base=`s${n}p${ph}b${bi}`;
+    if(b.a){h+=`<div class="act"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b></div><div class="tags"><span>${b.dk} dk</span>${b.mat?`<span class="mat">Materyal: ${b.mat}</span>`:""}<span class="ref">Kılavuz ${b.ref}</span></div>${b.i.map((x,i)=>item(base+"i"+i,x)).join("")}</div>`;return}
+    if(b.done){const d=st(`s${n}done`);h+=`<button class="done-btn" id="doneBtn" type="button">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button>`;return}
+    h+=`<div class="grp">${b.g?`<h4>${b.g}</h4>`:""}${b.note?`<p style="margin:0 10px;color:var(--muted)">${b.note}</p>`:""}`;
+    if(b.i) h+=b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],true):item(base+"i"+i,x)).join("");
+    if(b.f) h+=b.f.map(f=>`<div class="field"><label for="f${n}${f[0]}">${f[1]}</label><input id="f${n}${f[0]}" data-f="s${n}f${f[0]}" value="${(st(`s${n}f${f[0]}`)||"").replace(/"/g,"&quot;")}"></div>`).join("");
+    h+=`</div>`;
+  });
+  return h+`<p class="preview">Önizleme · İşaretler ve notlar yalnızca bu cihazda saklanır.</p>`;
+}
+function updProg(){
+  const all=[...document.querySelectorAll('.panel input[type=checkbox]')]; if(!all.length||!$("pt")) return;
+  const d=all.filter(x=>x.checked).length; $("pt").textContent=`${d} / ${all.length}`; $("pf").style.width=(100*d/all.length)+"%";
+}
+document.addEventListener("change",e=>{
+  if(e.target.dataset.k){put(e.target.dataset.k,e.target.checked);updProg()}
+});
+document.addEventListener("input",e=>{if(e.target.dataset.f) put(e.target.dataset.f,e.target.value)});
+document.addEventListener("click",e=>{
+  if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));e.target.textContent=st(k)?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}
+});
+let curS=0;
+document.addEventListener("click",e=>{
+  const c=e.target.closest("[data-s]"); if(c){curS=+c.dataset.s; session(curS);}
+  const t=e.target.closest("[data-ph]"); if(t) session(curS,+t.dataset.ph);
+});
+$("home").onclick=home;
+const m=location.hash.match(/^#oturum-(\d+)$/);
+if(m&&+m[1]>=1&&+m[1]<=20){curS=+m[1];session(curS)} else home();
+</script>
+</body>
+</html>
