@@ -184,8 +184,11 @@ main{padding-block:8px 64px}
 .qp{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:6px 20px 16px;margin-top:12px}
 .qs{padding:14px 0;border-bottom:1px dashed var(--line)}
 .qs:last-of-type{border-bottom:0}
-.qs h3{font-family:var(--f-display);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px;color:var(--qc);display:flex;align-items:center;gap:8px}
-.qs h3 i{width:10px;height:10px;border-radius:50%;background:var(--qc)}
+.qs h3{margin:0 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.qs h3 .qh{display:inline-flex;align-items:center;gap:9px;background:var(--qc);color:var(--on);border-radius:12px;padding:8px 14px 8px 10px;font-family:var(--f-display);font-size:15px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 6px rgba(0,0,0,.12)}
+.qs h3 .qh i{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,.2);display:grid;place-items:center;font-style:normal}
+.qs h3 .qh svg{width:18px;height:18px}
+.qs h3 .more{margin-left:auto}
 .qs .chk input{border-color:var(--qc)}.qs .chk input:checked{background:var(--qc)}.qs .chk:hover{background:var(--qs)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 10px 8px}
 .chips span{background:var(--slate-s);border-radius:999px;padding:3px 11px;font-size:14px}
@@ -198,6 +201,21 @@ main{padding-block:8px 64px}
 .more{border:0;background:none;color:var(--qc);font-weight:600;font-size:14px;cursor:pointer;padding:2px 0;text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .qnote{margin:4px 10px;color:var(--muted);font-size:15px}
 .qflow{font-family:var(--f-display);font-size:14px;color:var(--muted);margin:0 10px 6px}
+.qflow em{font-family:var(--f-body,inherit);font-style:normal;font-size:13px;background:var(--slate-s);border-radius:999px;padding:2px 10px;margin-left:8px;display:inline-block}
+.tlnote{font-size:13px;color:var(--muted);margin:-8px 0 12px}
+.backq{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:9;border:0;background:var(--rust);color:var(--on);border-radius:999px;padding:12px 20px;font-family:var(--f-display);font-weight:600;font-size:15px;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis}
+.backq:hover{background:var(--rust-d)}
+body:has(#backQ) #view{padding-bottom:84px}
+.reset{margin-top:12px;border:2px dashed var(--line);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.reset h4{font-family:var(--f-display);font-size:16px;margin:0}
+.reset p{margin:0;color:var(--muted);font-size:15px}
+.reset .rb{display:flex;gap:10px;flex-wrap:wrap}
+.reset .rb button{border:0;border-radius:12px;padding:10px 22px;font-family:var(--f-display);font-weight:600;font-size:15px;cursor:pointer}
+.reset .ry{background:var(--rust);color:var(--on)}
+.reset .rn{background:var(--slate-s);color:var(--ink)}
+.reset label{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+.reset label input{width:18px;height:18px;accent-color:var(--rust)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10;background:var(--teal-d);color:#fff;border-radius:999px;padding:11px 20px;font-family:var(--f-display);font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.25)}
 @media (max-width:620px){.qrow{flex-wrap:wrap}.qrow .more{margin-left:36px}}
 @media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
@@ -702,11 +720,24 @@ const $=id=>document.getElementById(id);
 const cv=c=>`--bc:var(--${c});--bs:var(--${c}-s)`;
 const pv=p=>`--pc:var(--${PH[p].c});--ps:var(--${PH[p].c}-s)`;
 
+let noReset={};
+function resetHTML(n){
+  if(!st(`s${n}done`)||noReset[n])return "";
+  return `<div class="reset" role="group" aria-label="İşaretleri temizle"><h4>Seans bitti. Başka bir seans için işaretler kaldırılsın mı?</h4>
+  <p>Portal veri tutmaz; aynı oturumu başka bir çocukla uygulayacaksan işaretleri temizleyebilirsin. Bu oturumdaki bütün işaretler (hızlı ve ayrıntılı) ve "tamamlandı" durumu silinir.</p>
+  <label><input type="checkbox" id="rNotes"> Kayıt alanlarındaki notları da sil (bir sonraki oturumda görünmez)</label>
+  <div class="rb"><button type="button" class="ry" data-reset="yes">Evet, temizle</button><button type="button" class="rn" data-reset="no">Hayır</button></div></div>`}
+function clearSession(n,notes){
+  const re=new RegExp(`^s${n}(p\\d|q\\d|done${notes?"|f":""})`);
+  Object.keys(mem).forEach(k=>{if(re.test(k))delete mem[k]});
+  try{Object.keys(localStorage).forEach(k=>{if(k.startsWith("ssr:")&&re.test(k.slice(4)))localStorage.removeItem(k)})}catch(e){}
+}
+function toast(msg){const d=document.createElement("div");d.className="toast";d.textContent=msg;document.body.appendChild(d);setTimeout(()=>d.remove(),2600)}
 function keys(n,p){const out=[];const P=DATA[n].phases[p];P.forEach((b,bi)=>{(b.i||[]).forEach((_,i)=>out.push(`s${n}p${p}b${bi}i${i}`))});return out}
 function pct(n,p){const k=keys(n,p);if(!k.length)return 0;return Math.round(100*k.filter(x=>st(x)).length/k.length)}
 
 function home(){
-  $("home").hidden=true;
+  $("home").hidden=true;retQ=null;
   let h=`<section class="hero"><div class="wrap gut"><img src="${IMG}" alt="Simon ve dört beyin becerisi: Çalışma Belleği, Bilişsel Esneklik, Tepki Engelleme, Sonuç Odaklı Düşünme">
   <div><h1>Hangi oturuma <span>hazırlanıyorsun?</span></h1>
   <p>Basılı uygulama kılavuzunun yanında kullanılır. Her oturumda ne yapacağını üç adımda gösterir; ayrıntı için kılavuzun ilgili sayfasına yönlendirir.</p>
@@ -727,7 +758,7 @@ function phaseHTML(n,p){
   const P=DATA[n].phases[p]; let h="";
   if(p===1){
     const acts=P.filter(b=>b.a);
-    h+=`<div class="tl" aria-label="Oturum akışı">${acts.map((b,i)=>`<button type="button" data-jump="a${b.a}" style="flex:${b.dk};background:var(--${ACT_C[i%ACT_C.length]})" title="${b.t}"><b>${b.a}</b><span>${b.dk} dk</span></button>`).join("")}</div>`;
+    h+=`<div class="tl" aria-label="Oturum akışı">${acts.map((b,i)=>`<button type="button" data-jump="a${b.a}" style="flex:${b.dk};background:var(--${ACT_C[i%ACT_C.length]})" title="${b.t}"><b>${b.a}</b><span>${b.dk} dk</span></button>`).join("")}</div><p class="tlnote">Süreler kesin değil, tahmini öneridir.</p>`;
   }
   P.forEach((b,bi)=>{
     const base=`s${n}p${p}b${bi}`;
@@ -737,7 +768,7 @@ function phaseHTML(n,p){
       h+=`<article class="act" id="a${b.a}" style="--ac:var(--${c});--as:var(--${c.replace('-d','')}-s)"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length}</span></div>
       <div class="tags"><span class="t-dk">${b.dk} dk</span>${b.mat?`<span class="t-mat">Materyal: ${b.mat}</span>`:""}${b.koc?`<span class="t-koc">${b.koc}</span>`:""}<span>Kılavuz ${b.ref}</span></div>
       <div class="items">${b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],x[1]):item(base+"i"+i,x)).join("")}</div></article>`;return}
-    if(b.done){const d=st(`s${n}done`);h+=`<div class="done ${d?'is':''}"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>${d?"Ana ekranda bu oturum tamamlandı olarak görünür.":"Bütün maddeleri bitirdiğinde işaretle."}</span></div>`;return}
+    if(b.done){const d=st(`s${n}done`);h+=`<div class="done ${d?'is':''}"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>${d?"Ana ekranda bu oturum tamamlandı olarak görünür.":"Bütün maddeleri bitirdiğinde işaretle."}</span></div>`+resetHTML(n);return}
     h+=`<div class="grp"><div class="gh"><span class="gi">${ICON[b.ic]||""}</span><h4>${b.g}</h4></div>`;
     if(b.note) h+=`<p class="note">${b.note}</p>`;
     if(b.prev){const vals=b.pf.map(f=>[f[1],st(`s${b.prev}f${f[0]}`)]);const any=vals.some(v=>v[1]);
@@ -750,15 +781,18 @@ function phaseHTML(n,p){
   return h+`<p class="foot">İşaretler ve notlar yalnızca bu cihazda saklanır.</p>`;
 }
 
-let curS=0,curP=0,curV="";
+let curS=0,curP=0,curV="",retQ=null;
 function shead(n){const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n];
   return `<section class="shead ${s[1]===0?'multi':''}" style="${cv(b.c)}"><span class="big">${n}</span><div><div class="k">${b.tag} · ${s[3]}</div><h1>${s[2]}</h1>${D?`<div class="facts">${D.facts.map(f=>`<span>${f}</span>`).join("")}</div>`:""}</div>${SICON[n]?`<span class="sico">${SICON[n]}</span>`:""}</section>`}
 function seg(n,v){const q=DATA[n]&&DATA[n].quick;
   return `<div class="seg" role="group" aria-label="Kullanım düzeyi"><button type="button" data-mode="hizli" aria-pressed="${v==="hizli"}" ${q?"":"disabled title='Bu oturumun hızlı özeti hazırlanıyor'"}>⚡ Hızlı Hazırlık</button><button type="button" data-mode="rehber" aria-pressed="${v==="rehber"}">☰ Adım Adım Rehber</button></div>`}
+const QI=['<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3h6v3H9zM9 11h6M9 15h4"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg>',
+  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h11l-1.5 4L16 12H5"/></svg>'];
 const MI={q:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>',
   g:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>'};
 function entry(n){
-  curS=n;curP=0;curV="";
+  curS=n;curP=0;curV="";retQ=null;
   const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n],q=D&&D.quick;
   $("home").hidden=false;
   const prog=D?PH.map((ph,i)=>`${ph.t} %${pct(n,i)}`).join(" · "):"";
@@ -772,7 +806,7 @@ function entry(n){
   try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
 }
 function quick(n){
-  curS=n;curV="hizli";
+  curS=n;curV="hizli";retQ=null;
   const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n],Q=D.quick,P=D.phases;
   $("home").hidden=false;
   const qk=(sec,i)=>`s${n}q${sec}i${i}`;
@@ -780,14 +814,14 @@ function quick(n){
   const pr=grp(0,"print"),tb=grp(0,"box"),pv0=P[0].find(x=>x.prev||x.ic==="back");
   const pdfs=pr?pr.i.map(x=>Array.isArray(x)?x[0]:x):[], mats=tb?tb.i.map(x=>Array.isArray(x)?x[0]:x):[];
   const acts=P[1].filter(x=>x.a), sv=P[2].find(x=>x.f), nx=P[2].find(x=>x.ic==="next");
-  const sec=(c,title,ph,body)=>`<section class="qs" style="--qc:var(--${c});--qs:var(--${c}-s);--pc:var(--${c});--ps:var(--${c}-s)"><h3><i></i>${title}<button class="more" type="button" data-detail="${ph}" style="margin-left:auto;text-transform:none;letter-spacing:0">Ayrıntılı: ${PH[ph].t}</button></h3>${body}</section>`;
+  const sec=(c,title,ph,body)=>`<section class="qs" style="--qc:var(--${c});--qs:var(--${c}-s);--pc:var(--${c});--ps:var(--${c}-s)"><h3><span class="qh"><i>${QI[ph]}</i>${title}</span><button class="more" type="button" data-detail="${ph}">Ayrıntılı: ${PH[ph].t}</button></h3>${body}</section>`;
   let once=Q.once.map((x,i)=>item(qk(0,i),x)).join("");
   if(pdfs.length) once+=`<div class="chips" aria-label="Çıktılar">${pdfs.map(x=>`<span class="pd">PDF · ${x}</span>`).join("")}</div>`;
   if(mats.length) once+=`<div class="chips" aria-label="Materyaller">${mats.map(x=>`<span>${x}</span>`).join("")}</div>`;
   if(pv0){ if(pv0.prev){const v=pv0.pf.map(f=>[f[1],st(`s${pv0.prev}f${f[0]}`)]).filter(x=>x[1]);once+=`<p class="qnote"><b>${pv0.prev}. Oturumdan:</b> ${v.length?v.map(x=>`${x[0]}: ${x[1]}`).join(" · "):"henüz not kaydedilmedi."}</p>`}
     else if(pv0.note) once+=`<p class="qnote"><b>Önceki oturum:</b> ${pv0.note}</p>`}
   const tot=Q.flow.reduce((t,f)=>t+f.a.reduce((u,a)=>u+(acts.find(x=>x.a===a)||{dk:0}).dk,0),0);
-  const flow=`<p class="qflow">Toplam ≈ ${tot} dk</p>`+Q.flow.map((f,i)=>{const A=f.a.map(a=>acts.find(x=>x.a===a)).filter(Boolean);
+  const flow=`<p class="qflow">Toplam ≈ ${tot} dk<em>Süreler kesin değil, tahmini öneridir.</em></p>`+Q.flow.map((f,i)=>{const A=f.a.map(a=>acts.find(x=>x.a===a)).filter(Boolean);
     const dk=A.reduce((t,x)=>t+x.dk,0), mat=A.map(x=>x.mat).filter(Boolean).join(" · "), ref=A.map(x=>x.ref.split(" · ")[0]).join(", ");
     const on=st(qk(1,i))?"checked":"";
     return `<div class="qrow"><label class="chk"><input type="checkbox" data-k="${qk(1,i)}" ${on}><span class="lt"><b>${f.t}</b> <span class="dk">${dk} dk</span><span class="qmeta">${f.h}</span><span class="qmeta">${mat?"Materyal: "+mat+" · ":""}Kılavuz ${ref}</span></span></label><button class="more" type="button" data-detail="1:a${f.a[0]}">Ayrıntılı adımları gör</button></div>`}).join("");
@@ -797,7 +831,7 @@ function quick(n){
   const d=st(`s${n}done`);
   $("view").innerHTML=`<main class="gut"><div class="wrap">${shead(n)}${seg(n,"hizli")}
    <div class="qp">${sec("teal","Seans öncesi",0,once)}${sec("rust","Seans akışı",1,flow)}${sec("plum","Seans sonrası",2,after)}
-   <div class="done ${d?'is':''}" style="--pc:var(--plum);--ps:var(--plum-s)"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>Hızlı işaretler ayrıntılı rehberdeki adımları otomatik tamamlamaz.</span></div>
+   <div class="done ${d?'is':''}" style="--pc:var(--plum);--ps:var(--plum-s)"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>Hızlı işaretler ayrıntılı rehberdeki adımları otomatik tamamlamaz.</span></div>${resetHTML(n)}
    <p class="foot">İşaretler ve notlar yalnızca bu cihazda saklanır. Kayıt alanları iki görünümde ortaktır.</p></div>
   </div></main>`;
   try{history.replaceState(null,"","#oturum-"+n+"/hizli")}catch(e){}
@@ -810,6 +844,7 @@ function session(n,p=0){
   $("view").innerHTML=`<main class="gut"><div class="wrap">
    ${shead(n)}${seg(n,"rehber")}
    <div class="tabs" role="tablist">${tabs}</div>
+   ${retQ&&retQ.n===n?`<button class="backq" id="backQ" type="button">← Hızlı Hazırlık'ta kaldığın yere dön</button>`:""}
    <div class="panel" style="${pv(p)}">${D?phaseHTML(n,p):`<div class="empty"><h3>${PH[p].t}: hazırlanıyor</h3><p style="margin:0">Bu oturumun kontrol listesi henüz eklenmedi.</p></div>`}</div>
   </div></main>`;
   try{history.replaceState(null,"","#oturum-"+n+"/rehber")}catch(e){}
@@ -822,10 +857,14 @@ function refresh(){
 document.addEventListener("click",e=>{
   const c=e.target.closest("[data-s]"); if(c){entry(+c.dataset.s);window.scrollTo({top:0});return}
   const md=e.target.closest("[data-mode]"); if(md){if(md.disabled)return;md.dataset.mode==="hizli"?quick(curS):session(curS,curP);window.scrollTo({top:0});return}
-  const dt=e.target.closest("[data-detail]"); if(dt){const [ph,a]=dt.dataset.detail.split(":");session(curS,+ph);const el=a&&$(a);if(el)el.scrollIntoView({block:"start"});else window.scrollTo({top:0});return}
+  const dt=e.target.closest("[data-detail]"); if(dt){const [ph,a]=dt.dataset.detail.split(":");retQ={n:curS,y:window.scrollY};session(curS,+ph);const el=a&&$(a);if(el)el.scrollIntoView({block:"start"});else window.scrollTo({top:0});return}
   const t=e.target.closest("[data-ph]"); if(t){session(curS,+t.dataset.ph);document.querySelector(".tabs").scrollIntoView({block:"start",behavior:"smooth"});return}
   const j=e.target.closest("[data-jump]"); if(j){$(j.dataset.jump).scrollIntoView({behavior:"smooth"});return}
-  if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));curV==="hizli"?quick(curS):session(curS,curP);return}
+  if(e.target.closest("#backQ")){const r=retQ;retQ=null;quick(r.n);window.scrollTo({top:r.y});return}
+  const rs=e.target.closest("[data-reset]"); if(rs){const n=curS;
+    if(rs.dataset.reset==="yes"){const notes=$("rNotes")&&$("rNotes").checked;clearSession(n,notes);curV==="hizli"?quick(n):session(n,0);window.scrollTo({top:0});toast(notes?"İşaretler ve notlar temizlendi":"İşaretler temizlendi")}
+    else{noReset[n]=true;rs.closest(".reset").remove()}return}
+  if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));delete noReset[curS];curV==="hizli"?quick(curS):session(curS,curP);return}
 });
 document.addEventListener("change",e=>{if(e.target.dataset.k){put(e.target.dataset.k,e.target.checked);refresh()}});
 document.addEventListener("input",e=>{if(e.target.dataset.f)put(e.target.dataset.f,e.target.value)});
