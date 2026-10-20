@@ -127,6 +127,9 @@ main{padding-block:8px 64px}
 .pdf{font-size:12px;font-weight:700;color:var(--rust);background:var(--rust-s);border-radius:999px;padding:2px 10px;white-space:nowrap;align-self:center}
 .sk{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:1px;color:var(--on)}
 .note{margin:2px 10px;color:var(--muted)}
+.prevbox{margin:4px 10px 6px;border-radius:12px;background:var(--ps);padding:10px 14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:8px 16px;font-size:15px}
+.prevbox span{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--pc)}
+.prevbox b{font-weight:600}
 
 /* timeline */
 .tl{display:flex;gap:3px;border-radius:12px;overflow:hidden;margin:2px 0 14px}
@@ -209,7 +212,7 @@ const SK={CB:["Hatırlama","teal"],TE:["Durdurma","rust"],BE:["Değiştirme","pl
 const sk=k=>`<span class="sk" style="background:var(--${SK[k][1]})">${SK[k][0]}</span>`;
 
 /* ---- Oturum ikonları ---- */
-const SICON={1:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Aile birlikte hikâye okuyor"> <circle cx="60" cy="60" r="58" fill="#EAF4F5"/> <circle cx="42" cy="33" r="11" fill="#B8521C"/> <path d="M24 66c0-12 8-20 18-20s18 8 18 20z" fill="#B8521C"/> <circle cx="78" cy="35" r="10" fill="#8A3C8C"/> <path d="M61 66c0-11 7.5-18 17-18s17 7 17 18z" fill="#8A3C8C"/> <path d="M60 64c-9-6-21-7-34-4v34c13-3 25-2 34 4z" fill="#1F6F7A"/> <path d="M60 64c9-6 21-7 34-4v34c-13-3-25-2-34 4z" fill="#2E5C9A"/> <path d="M60 64v34" stroke="#FFFFFF" stroke-width="2.5"/> <path d="M33 70c7-1.5 14-1 21 2M33 78c7-1.5 14-1 21 2M33 86c7-1.5 14-1 21 2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".85"/> <path d="M87 70c-7-1.5-14-1-21 2M87 78c-7-1.5-14-1-21 2M87 86c-7-1.5-14-1-21 2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".85"/> <path d="M60 30c-2.5-4-9-3.5-9 1.5 0 4 9 9.5 9 9.5s9-5.5 9-9.5c0-5-6.5-5.5-9-1.5z" fill="#E0A21B"/> </svg>`};
+const SICON={2:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Simon kendi hikâyesini anlatıyor"> <circle cx="60" cy="60" r="58" fill="#EAF4F5"/> <path d="M38 34v-9" stroke="#56636A" stroke-width="3" stroke-linecap="round"/><circle cx="38" cy="23" r="4" fill="#B8521C"/> <rect x="18" y="34" width="42" height="38" rx="8" fill="#56636A"/> <rect x="24" y="40" width="30" height="20" rx="5" fill="#FFFFFF"/> <circle cx="33" cy="49" r="3.2" fill="#1E2427"/><circle cx="45" cy="49" r="3.2" fill="#1E2427"/> <path d="M33 55c3 2.5 9 2.5 12 0" stroke="#1E2427" stroke-width="2.4" fill="none" stroke-linecap="round"/> <rect x="26" y="74" width="26" height="22" rx="6" fill="#56636A"/> <rect x="33" y="79" width="12" height="9" rx="2" fill="#E0A21B"/> <path d="M64 22h38a8 8 0 0 1 8 8v26a8 8 0 0 1-8 8H82l-10 9v-9h-8a8 8 0 0 1-8-8V30a8 8 0 0 1 8-8z" fill="#FFFFFF" stroke="#D7E0E2" stroke-width="2"/> <circle cx="74" cy="36" r="6" fill="#1F6F7A"/><circle cx="92" cy="36" r="6" fill="#B8521C"/> <circle cx="74" cy="51" r="6" fill="#8A3C8C"/><circle cx="92" cy="51" r="6" fill="#2E5C9A"/> </svg>`,1:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Aile birlikte hikâye okuyor"> <circle cx="60" cy="60" r="58" fill="#EAF4F5"/> <circle cx="42" cy="33" r="11" fill="#B8521C"/> <path d="M24 66c0-12 8-20 18-20s18 8 18 20z" fill="#B8521C"/> <circle cx="78" cy="35" r="10" fill="#8A3C8C"/> <path d="M61 66c0-11 7.5-18 17-18s17 7 17 18z" fill="#8A3C8C"/> <path d="M60 64c-9-6-21-7-34-4v34c13-3 25-2 34 4z" fill="#1F6F7A"/> <path d="M60 64c9-6 21-7 34-4v34c-13-3-25-2-34 4z" fill="#2E5C9A"/> <path d="M60 64v34" stroke="#FFFFFF" stroke-width="2.5"/> <path d="M33 70c7-1.5 14-1 21 2M33 78c7-1.5 14-1 21 2M33 86c7-1.5 14-1 21 2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".85"/> <path d="M87 70c-7-1.5-14-1-21 2M87 78c-7-1.5-14-1-21 2M87 86c-7-1.5-14-1-21 2" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".85"/> <path d="M60 30c-2.5-4-9-3.5-9 1.5 0 4 9 9.5 9 9.5s9-5.5 9-9.5c0-5-6.5-5.5-9-1.5z" fill="#E0A21B"/> </svg>`};
 /* ---- Oturum içerikleri ---- */
 const DATA={1:{
   facts:["≈ 60 dk","Yalnızca aile","Çocuk katılmaz"],
@@ -230,8 +233,29 @@ const DATA={1:{
      {g:"Sonraki oturum için kaydet",ic:"save",f:[["koc","Koçun adı"],["kart","Seçilen Beceri Kontrol Kartı"],["hedef","Hedef adayı (Sahne 5)"]]},
      {g:"2. Oturuma hazırlık",ic:"next",i:["Aile getirecek: Beceri Anları Kayıt Sayfası ve doldurulmuş harita.","Sen hazırlayacaksın: Simon'un Hikâyesi, Bölüm I."]},
      {done:true} ]
+  ]},
+2:{
+  facts:["≈ 50 dk","Uygulayıcı ve çocuk","Koç açılışta ve kapanışta"],
+  phases:[
+   [ {g:"Kendin için",ic:"book",i:["Simon'un Hikâyesi'ni (ÇK Giriş s. 32–42) iki kez sesli oku; Simon'un sesiyle anlatmayı dene.","Üç durağı (s. 33, 34, 35) ve dört beceri sayfasını (s. 38–41) işaretle."]},
+     {g:"Koçla",ic:"phone",i:["Koçun getirdiği Beceri Anları Kayıt Sayfası'nı çocuk odaya girmeden oku; bir \"başarı anı\" seç.","Koçun oturum sırasında bekleyeceği yeri ayarla."]},
+     {g:"Yazdır",ic:"print",i:[["Peki Ya Sen? çalışma sayfası (ÇK s. 45)","pdf"],["Oturum Değerlendirme ve Takip Formu","pdf"]]},
+     {g:"Masaya",ic:"box",i:["Simon'un Hikâyesi (ÇK Giriş s. 32–42)","Simon'un Dört Beyin Becerisi görseli (s. 36)","Yürütücü İşlevler Kontrol Listem (s. 43–44)","Boş kâğıt, kalem, boya kalemleri","Beceri Kontrol Kartları (isteğe bağlı)"]},
+     {g:"1. Oturumdan gelen",ic:"back",prev:1,pf:[["koc","Koçun adı"],["kart","Ailenin seçtiği kart"],["hedef","Hedef adayı"]],i:["Ailenin getirdiği Beceri Anları Kayıt Sayfası","1. Oturumda doldurulan Beyin Becerileri Haritası"]} ],
+   [ {a:1,t:"Karşılama: Koçla birlikte",dk:5,ref:"s. 2",koc:"Koç odada",i:["Çocuğu ve Koçu birlikte karşıla.","Koçtan seçtiğin başarı anını çocuğun yanında anlatmasını iste. Zorlanılan anlar konuşulmaz.","Koça teşekkür et; dışarıda bekleyeceğini ve sonunda döneceğini çocuğun duyacağı biçimde söyle."]},
+     {a:2,t:"Simon'la tanışma",dk:3,ref:"s. 3",mat:"Simon'un resmi (ÇK s. 32)",i:["Simon'un kaykaylı resmini göster ve Simon'u tanıt.","Sınav olmadığını, yanlış cevabın da olmadığını söyle.","Hikâyeyi Simon'un ağzından, \"ben\" diliyle anlat."]},
+     {a:3,t:"Simon'un Hikâyesi: Ben neden yapamıyordum?",dk:10,ref:"s. 4",mat:"ÇK s. 33–35",i:[["Durak 1 · Simon'un dört sorunu: \"Hangisi sana en tanıdık geldi?\" Cevabı not et.","ALL"],"Durak 2 · \"Belki de beceriksiz biriyim\": \"Sence Simon beceriksiz mi?\"","Durak 3 · Oyun tahtası: kâğıda BAŞLA, BİTİŞ ve kıvrımlı bir yol çiz.","Çizimi sakla; Etkinlik 6'da kullanılacak."]},
+     {a:4,t:"Simon'un dört beyin becerisi",dk:15,ref:"s. 5–6",mat:"ÇK s. 36–42",i:["Görseli göster; kısa adları söyle: Hatırlama, Durdurma, Değiştirme, Planlama.",["Hatırlama (s. 38): ipucu aracı ve köprü sorusu","CB"],["Durdurma (s. 39): durma oyunları ve köprü sorusu","TE"],["Değiştirme (s. 40): isterse bir kez yavaş nefes, köprü sorusu","BE"],["Planlama (s. 41): oyun tahtasıyla bağla, köprü sorusu","SO"],"Çocuğun Durak 1'de seçtiği becerinin üzerinde daha uzun dur.","Hikâyenin sonu (s. 42): \"Hangisi senin işine en çok yarardı?\" Cevabı not et."]},
+     {a:5,t:"Simon'un Kontrol Listesi",dk:4,ref:"s. 7",mat:"ÇK s. 43–44",i:["Sayfayı Simon'un yol haritası olarak göster; doldurulmaz.","Üç yolu hikâyeden bir örnekle bağla: becerileri uygula, araç kullan, yardım iste."]},
+     {a:6,t:"Peki Ya Sen?",dk:7,ref:"s. 7",mat:"Peki Ya Sen? (ÇK s. 45)",i:["Küçük, somut ve bu hafta denenebilir bir amaç yazın.","Bir beceriyi daire içine alın.","Kontrol listesinden bir yol seçip nasıl yapacağını yazın.","Amaç büyükse küçültün: \"Bu hafta onun küçük bir parçası ne olabilir?\""]},
+     {a:7,t:"Kapanış: Koç geri döner",dk:6,ref:"s. 8",koc:"Koç geri döner",i:["Koçu içeri al; çocuk Simon'u ve amacını Koça anlatsın.","\"Bir Şey Daha Var!\": Koçla kontrol zamanını belirleyin (tarih, saat, yer).","Koça rolünü söyle: o anda yanında olsun, \"Nasıl gitti?\" diye sorsun; puan vermesin.","Sayfadaki üç mesajı çocuğa oku.","Bravo, Başardın!: çabayı ve dürüstlüğü adlandır."]} ],
+   [ {g:"Eve gidenler",ic:"hand",i:["Peki Ya Sen? sayfası eve gider; amacın yaşandığı yere asılır (kapı, buzdolabı).","Koça hatırlat: Koç Raporu'nda Görev 1 kontrol zamanında çocukla birlikte işaretlenecek (−2 ile +2)."]},
+     {g:"Formu doldur",ic:"form",i:["Uygulayıcı Notları: Durak 1'de seçilen sorun, seçilen beceri, çocuğun amacı ve yolu.","\"Görev / Öneri 1\" alanına amacı ve kontrol zamanını yaz."]},
+     {g:"Sonraki oturum için kaydet",ic:"save",f:[["sorun","Durak 1'de seçilen sorun"],["beceri","Çocuğun seçtiği beceri"],["amac","Bu haftanın amacı"],["kontrol","Kontrol zamanı"]]},
+     {g:"3. Oturuma hazırlık",ic:"next",i:["Koç getirecek: Koç Raporu (Görev 1 işaretlenmiş).","3. Oturumda Çalışma Kitabı 1 başlıyor; Beceri Kontrol Kartı 1'i hazırla."]},
+     {done:true} ]
   ]}};
-const ACT_C=["slate","teal","rust","plum","blue","teal-d"];
+const ACT_C=["slate","teal","rust","plum","blue","teal-d","plum-d"];
 
 /* ---- saklama: yalnızca bu cihaz ---- */
 const mem={};
@@ -273,12 +297,14 @@ function phaseHTML(n,p){
     if(b.a){
       const c=ACT_C[(b.a-1)%ACT_C.length];
       const ks=b.i.map((_,i)=>base+"i"+i); const dn=ks.filter(k=>st(k)).length;
-      h+=`<article class="act" id="a${b.a}" style="--ac:var(--${c});--as:var(--${c==='teal-d'?'teal':c}-s)"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length}</span></div>
+      h+=`<article class="act" id="a${b.a}" style="--ac:var(--${c});--as:var(--${c.replace('-d','')}-s)"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length}</span></div>
       <div class="tags"><span class="t-dk">${b.dk} dk</span>${b.mat?`<span class="t-mat">Materyal: ${b.mat}</span>`:""}${b.koc?`<span class="t-koc">${b.koc}</span>`:""}<span>Kılavuz ${b.ref}</span></div>
       <div class="items">${b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],x[1]):item(base+"i"+i,x)).join("")}</div></article>`;return}
     if(b.done){const d=st(`s${n}done`);h+=`<div class="done ${d?'is':''}"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>${d?"Ana ekranda bu oturum tamamlandı olarak görünür.":"Bütün maddeleri bitirdiğinde işaretle."}</span></div>`;return}
     h+=`<div class="grp"><div class="gh"><span class="gi">${ICON[b.ic]||""}</span><h4>${b.g}</h4></div>`;
     if(b.note) h+=`<p class="note">${b.note}</p>`;
+    if(b.prev){const vals=b.pf.map(f=>[f[1],st(`s${b.prev}f${f[0]}`)]);const any=vals.some(v=>v[1]);
+      h+=`<div class="prevbox">${any?vals.map(v=>`<div><span>${v[0]}</span><b>${v[1]||"—"}</b></div>`).join(""):`<p style="margin:0">${b.prev}. Oturumda henüz not kaydedilmedi. Notlar, o oturumun “Seansı tamamla” bölümünde girildiğinde burada görünür.</p>`}</div>`}
     if(b.i) h+=b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],x[1]):item(base+"i"+i,x)).join("");
     if(b.f) h+=b.f.map(f=>`<div class="field"><label for="f${n}${f[0]}">${f[1]}</label><input id="f${n}${f[0]}" data-f="s${n}f${f[0]}" value="${(st(`s${n}f${f[0]}`)||"").replace(/"/g,"&quot;")}"></div>`).join("");
     h+=`</div>`;
