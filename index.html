@@ -7,241 +7,313 @@
 <title>Simon Says Seans Rehberim</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
-/* Layout: brand bar → bölüm bands (Giriş, ÇK1–ÇK4) each with a grid of session cards → session view with three phase tabs (Hazırlan / Uygula / Tamamla). */
+/* Layout: brand bar → hero with Simon → colour-banded book sections of session cards.
+   Session view: book-coloured header band → three phase tabs (each phase has its own guide colour) → checklist panel. */
 :root{
-  --bg:#F5F7F7; --surface:#FFFFFF; --ink:#1E2427; --muted:#56636A; --line:#D7E0E2;
-  --c0:#56636A; --c0s:#EEF1F2;   /* Giriş */
-  --c1:#1F6F7A; --c1s:#EAF4F5;   /* ÇK1 Hatırlama */
-  --c2:#B8521C; --c2s:#FDF1E9;   /* ÇK2 Durdurma */
-  --c3:#8A3C8C; --c3s:#F5ECF5;   /* ÇK3 Değiştirme */
-  --c4:#2E5C9A; --c4s:#E8EEF7;   /* ÇK4 Planlama */
-  --pend:#8A949A;
+  --bg:#F4F7F7; --surface:#FFFFFF; --ink:#1E2427; --muted:#56636A; --line:#D7E0E2;
+  --teal:#1F6F7A; --teal-d:#15525A; --teal-s:#EAF4F5;
+  --rust:#B8521C; --rust-d:#8A3B12; --rust-s:#FDF1E9;
+  --plum:#8A3C8C; --plum-d:#6A2A6C; --plum-s:#F5ECF5;
+  --blue:#2E5C9A; --blue-s:#E8EEF7;
+  --slate:#56636A; --slate-s:#EEF1F2;
+  --on:#FFFFFF;
   --f-display:'Lexend',system-ui,sans-serif; --f-body:'Source Sans 3',system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#121719; --surface:#1A2124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2B373B;
-  --c0:#A9B5BA; --c0s:#222B2E; --c1:#5FB3BE; --c1s:#15302F; --c2:#E58A55; --c2s:#33221A;
-  --c3:#C98BCB; --c3s:#2E2030; --c4:#7FA6DB; --c4s:#1C2636; --pend:#7C888D; color-scheme:dark}}
+  --bg:#111719; --surface:#192124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2A363A;
+  --teal:#3E9AA6; --teal-d:#5FB3BE; --teal-s:#16302F;
+  --rust:#C9642C; --rust-d:#E58A55; --rust-s:#33221A;
+  --plum:#9E52A0; --plum-d:#C98BCB; --plum-s:#2E2030;
+  --blue:#4A7BBE; --blue-s:#1C2636; --slate:#6F7C82; --slate-s:#222B2E; --on:#FFFFFF; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#121719; --surface:#1A2124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2B373B;
-  --c0:#A9B5BA; --c0s:#222B2E; --c1:#5FB3BE; --c1s:#15302F; --c2:#E58A55; --c2s:#33221A;
-  --c3:#C98BCB; --c3s:#2E2030; --c4:#7FA6DB; --c4s:#1C2636; --pend:#7C888D; color-scheme:dark}
+  --bg:#111719; --surface:#192124; --ink:#E5EBED; --muted:#9AA7AD; --line:#2A363A;
+  --teal:#3E9AA6; --teal-d:#5FB3BE; --teal-s:#16302F;
+  --rust:#C9642C; --rust-d:#E58A55; --rust-s:#33221A;
+  --plum:#9E52A0; --plum-d:#C98BCB; --plum-s:#2E2030;
+  --blue:#4A7BBE; --blue-s:#1C2636; --slate:#6F7C82; --slate-s:#222B2E; --on:#FFFFFF; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;margin:0}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
 .gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1080px;margin:0 auto}
 button{font:inherit;color:inherit}
-:focus-visible{outline:3px solid var(--c1);outline-offset:2px;border-radius:8px}
+:focus-visible{outline:3px solid var(--teal);outline-offset:2px;border-radius:8px}
+.stripe{height:5px;background:linear-gradient(90deg,var(--teal) 0 25%,var(--rust) 25% 50%,var(--plum) 50% 75%,var(--blue) 75%)}
 
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
-.bar .wrap{display:flex;align-items:center;gap:14px;padding-block:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.brand .ss{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:-.01em}
-.brand .sep{color:var(--line);font-size:22px}
-.brand .sr{font-family:var(--f-display);font-weight:400;font-size:20px;color:var(--muted)}
+/* bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);box-shadow:0 1px 0 var(--line)}
+.bar .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;cursor:pointer;background:none;border:0;padding:0}
+.logo{width:34px;height:34px;border-radius:10px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.logo i:nth-child(1){background:var(--teal)}.logo i:nth-child(2){background:var(--rust)}.logo i:nth-child(3){background:var(--plum)}.logo i:nth-child(4){background:var(--blue)}
+.brand .ss{font-family:var(--f-display);font-weight:700;font-size:18px}
+.brand .sr{font-family:var(--f-display);font-weight:500;font-size:18px;color:var(--teal-d)}
 .back{margin-left:auto;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-family:var(--f-display);font-size:14px;font-weight:600;cursor:pointer}
-.back:hover{border-color:var(--c1);color:var(--c1)}
+.back:hover{border-color:var(--teal);color:var(--teal)}
 
-main{padding-block:24px 64px}
-.intro{display:flex;flex-direction:column;gap:6px;margin-bottom:22px;max-width:62ch}
-.intro h1{font-family:var(--f-display);font-size:clamp(24px,3.6vw,32px);line-height:1.2;margin:0;text-wrap:balance}
-.intro p{margin:0;color:var(--muted)}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-top:4px}
-.legend span{display:inline-flex;align-items:center;gap:6px}
-.dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+/* hero */
+.hero{background:var(--teal-s)}
+.hero .wrap{display:flex;align-items:center;gap:24px;padding-block:22px}
+.hero img{width:min(240px,34vw);height:auto;flex-shrink:0;mix-blend-mode:multiply}
+:root[data-theme="dark"] .hero img{mix-blend-mode:normal;background:#fff;border-radius:16px;padding:6px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero img{mix-blend-mode:normal;background:#fff;border-radius:16px;padding:6px}}
+.hero h1{font-family:var(--f-display);font-size:clamp(26px,4vw,38px);line-height:1.15;margin:0 0 8px;text-wrap:balance}
+.hero h1 span{color:var(--teal-d)}
+.hero p{margin:0;max-width:56ch;color:var(--muted)}
+.phases{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.phases span{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-display);font-weight:600;font-size:14px;background:var(--surface);border-radius:999px;padding:5px 12px 5px 5px}
+.phases b{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:var(--on);font-size:13px}
+@media (max-width:560px){.hero .wrap{flex-direction:column;align-items:flex-start}.hero img{width:180px}}
 
-.book{margin-top:22px}
-.bookh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid var(--bc)}
-.bookh .tag{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc)}
+main{padding-block:8px 64px}
+.book{margin-top:26px}
+.bookh{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--bc);color:var(--on);border-radius:14px;padding:10px 16px;margin-bottom:12px}
+.bookh .tag{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
 .bookh h2{font-family:var(--f-display);font-size:19px;margin:0}
-.bookh .sk{font-size:14px;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr));gap:10px}
-.card{display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;min-width:0}
-.card:hover{border-color:var(--bc)}
-.num{font-family:var(--f-display);font-weight:700;font-size:26px;line-height:1;color:var(--bc);min-width:34px;font-variant-numeric:tabular-nums}
+.bookh .sk{font-size:14px;opacity:.9;margin-left:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,240px),1fr));gap:12px}
+.card{position:relative;display:flex;gap:12px;align-items:flex-start;text-align:left;background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--bc);border-radius:14px;padding:14px;cursor:pointer;min-width:0;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(20,40,45,.10)}
+.num{width:40px;height:40px;border-radius:12px;background:var(--bs);color:var(--bc);font-family:var(--f-display);font-weight:700;font-size:19px;display:grid;place-items:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.card.ready .num{background:var(--bc);color:var(--on)}
 .ct{display:flex;flex-direction:column;gap:4px;min-width:0}
 .ct b{font-family:var(--f-display);font-size:15px;font-weight:600;line-height:1.3}
 .ct .meta{font-size:13px;color:var(--muted)}
-.pill{align-self:flex-start;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px;margin-top:2px}
-.pill.pend{background:var(--c0s);color:var(--pend)}
-.pill.draft{background:var(--c1s);color:var(--c1)}
+.pill{align-self:flex-start;font-size:12px;font-weight:700;border-radius:999px;padding:2px 10px;margin-top:2px}
+.pill.pend{background:var(--slate-s);color:var(--muted)}
+.pill.ready{background:var(--bc);color:var(--on)}
+.pill.doneP{background:var(--teal-s);color:var(--teal-d)}
 
-/* session view */
-.sv-head{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
-.sv-num{font-family:var(--f-display);font-weight:700;font-size:56px;line-height:.9;color:var(--bc)}
-.sv-head .k{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc)}
-.sv-head h1{font-family:var(--f-display);font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:4px 0 0;text-wrap:balance}
-.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
-.tab{border:1.5px solid var(--line);background:var(--surface);border-radius:14px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
-.tab .n{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
-.tab b{font-family:var(--f-display);font-size:16px}
-.tab[aria-selected="true"]{border-color:var(--bc);background:var(--bs)}
-.tab[aria-selected="true"] .n{color:var(--bc)}
-@media (max-width:560px){.tab b{font-size:14px}.tab{padding:10px}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px}
-.empty{display:flex;flex-direction:column;gap:10px;align-items:flex-start;max-width:60ch}
-.empty h3{font-family:var(--f-display);margin:0;font-size:19px}
-.empty ul{margin:0;padding-left:20px;color:var(--muted)}
-.prog{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:14px;color:var(--muted)}
-.prog .track{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
-.prog .fill{height:100%;background:var(--bc);border-radius:99px;transition:width .2s}
-.grp{display:flex;flex-direction:column;gap:8px;padding-block:6px 14px;border-bottom:1px solid var(--line)}
-.grp:last-child{border-bottom:0;padding-bottom:0}
-.grp h4{font-family:var(--f-display);font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--bc);margin:8px 0 0}
-.chk{display:flex;gap:12px;align-items:flex-start;cursor:pointer;padding:8px 10px;border-radius:10px;max-width:72ch}
-.chk:hover{background:var(--bs)}
-.chk input{appearance:none;width:22px;height:22px;border:2px solid var(--bc);border-radius:6px;flex-shrink:0;margin:1px 0 0;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
-.chk input:checked{background:var(--bc)}
-.chk input:checked::after{content:"";width:6px;height:11px;border:solid var(--surface);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
-.chk input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
-.act{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
-.act + .act{margin-top:10px}
-.acth{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.acth .an{width:30px;height:30px;border-radius:50%;background:var(--bc);color:var(--surface);font-family:var(--f-display);font-weight:700;display:grid;place-items:center;flex-shrink:0}
-.acth b{font-family:var(--f-display);font-size:17px}
-.tags{display:flex;gap:6px;flex-wrap:wrap;font-size:13px}
-.tags span{border-radius:999px;padding:2px 10px;background:var(--bs);color:var(--bc);font-weight:600}
-.tags span.ref{background:var(--c0s);color:var(--muted)}
-.tags span.mat{background:var(--c2s);color:var(--c2)}
-.pdf{margin-left:auto;font-size:13px;font-weight:700;color:var(--bc);border:1.5px solid var(--bc);border-radius:999px;padding:1px 10px;white-space:nowrap}
-.field{display:flex;flex-direction:column;gap:4px;max-width:72ch;padding:6px 10px}
+/* session */
+.shead{border-radius:18px;padding:20px 22px;color:var(--on);background:var(--bc);margin-top:18px;display:flex;gap:18px;align-items:center;position:relative;overflow:hidden}
+.shead.multi{background:linear-gradient(120deg,var(--teal-d),var(--teal) 55%,var(--blue))}
+.shead .big{font-family:var(--f-display);font-weight:700;font-size:64px;line-height:.9;opacity:.95}
+.shead .k{font-family:var(--f-display);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
+.shead h1{font-family:var(--f-display);font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:4px 0 8px;text-wrap:balance}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.facts span{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 11px;font-size:14px;font-weight:600}
+.shead img{width:150px;height:auto;margin-left:auto;background:#FFFFFF;border-radius:14px;padding:6px;flex-shrink:0}
+@media (max-width:640px){.shead{flex-wrap:wrap}.shead img{display:none}.shead .big{font-size:48px}}
+
+.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+.tab{border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:12px 14px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;min-width:0}
+.tab .ring{--p:0;width:42px;height:42px;border-radius:50%;flex-shrink:0;background:conic-gradient(var(--pc) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center}
+.tab .ring b{width:32px;height:32px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-family:var(--f-display);font-size:14px;color:var(--pc)}
+.tab .tx{display:flex;flex-direction:column;min-width:0}
+.tab .tx small{font-family:var(--f-display);font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--muted)}
+.tab .tx strong{font-family:var(--f-display);font-size:16px;line-height:1.2}
+.tab .tx em{font-style:normal;font-size:13px;color:var(--muted)}
+.tab[aria-selected="true"]{border-color:var(--pc);background:var(--ps)}
+@media (max-width:620px){.tabs{gap:6px}.tab{flex-direction:column;align-items:flex-start;gap:6px;padding:10px}.tab .tx strong{font-size:14px}.tab .tx em{display:none}}
+
+.panel{background:var(--surface);border-radius:18px;padding:18px 20px;border:1px solid var(--line);border-top:5px solid var(--pc)}
+.lead{display:flex;gap:10px;align-items:center;background:var(--ps);border-radius:12px;padding:10px 14px;margin-bottom:6px;font-weight:600}
+.grp{display:flex;flex-direction:column;gap:2px;padding-block:12px;border-bottom:1px dashed var(--line)}
+.grp:last-of-type{border-bottom:0}
+.gh{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.gi{width:34px;height:34px;border-radius:10px;background:var(--ps);color:var(--pc);display:grid;place-items:center;flex-shrink:0}
+.gi svg{width:19px;height:19px}
+.gh h4{font-family:var(--f-display);font-size:16px;margin:0}
+.chk{display:flex;gap:12px;align-items:flex-start;cursor:pointer;padding:7px 10px;border-radius:10px;max-width:74ch}
+.chk:hover{background:var(--ps)}
+.chk input{appearance:none;width:24px;height:24px;border:2px solid var(--pc);border-radius:7px;flex-shrink:0;margin:0;cursor:pointer;display:grid;place-content:center;background:var(--surface)}
+.chk input:checked{background:var(--pc)}
+.chk input:checked::after{content:"";width:6px;height:12px;border:solid var(--on);border-width:0 3px 3px 0;transform:rotate(45deg) translate(-1px,-1px)}
+.chk input:checked ~ .lt{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--line)}
+.lt{flex:1;min-width:0}
+.pdf{font-size:12px;font-weight:700;color:var(--rust);background:var(--rust-s);border-radius:999px;padding:2px 10px;white-space:nowrap;align-self:center}
+.sk{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:1px;color:var(--on)}
+.note{margin:2px 10px;color:var(--muted)}
+
+/* timeline */
+.tl{display:flex;gap:3px;border-radius:12px;overflow:hidden;margin:2px 0 14px}
+.tl button{border:0;color:var(--on);font-family:var(--f-display);font-size:12px;padding:6px 8px;text-align:left;cursor:pointer;min-width:0;display:flex;flex-direction:column;line-height:1.2}
+.tl b{font-size:15px}
+.tl span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.act{border:1px solid var(--line);border-radius:16px;overflow:hidden;scroll-margin-top:90px}
+.act + .act{margin-top:12px}
+.acth{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:var(--as)}
+.acth .an{width:34px;height:34px;border-radius:50%;background:var(--ac);color:var(--on);font-family:var(--f-display);font-weight:700;display:grid;place-items:center;flex-shrink:0}
+.acth b{font-family:var(--f-display);font-size:17px;flex:1;min-width:0}
+.acth .ok{font-family:var(--f-display);font-size:13px;font-weight:700;color:var(--ac)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;font-size:13px;padding:10px 16px 0}
+.tags span{border-radius:999px;padding:2px 10px;font-weight:600;background:var(--slate-s);color:var(--muted)}
+.tags .t-dk{background:var(--ac);color:var(--on)}
+.tags .t-mat{background:var(--rust-s);color:var(--rust-d)}
+.tags .t-koc{background:var(--blue-s);color:var(--blue)}
+.act .items{padding:6px 6px 10px}
+.act .chk input{border-color:var(--ac)} .act .chk input:checked{background:var(--ac)} .act .chk:hover{background:var(--as)}
+
+.field{display:flex;flex-direction:column;gap:4px;max-width:74ch;padding:6px 10px}
 .field label{font-weight:600;font-size:15px}
-.field input{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--ink)}
-.done-btn{margin-top:14px;border:0;background:var(--bc);color:var(--surface);border-radius:12px;padding:12px 18px;font-family:var(--f-display);font-weight:600;cursor:pointer}
-.done-msg{margin-top:10px;font-weight:600;color:var(--bc)}
-.preview{font-size:13px;color:var(--muted);margin-top:12px}
+.field input{font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--surface);color:var(--ink)}
+.field input:focus{border-color:var(--pc);outline:none}
+.done{margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-radius:16px;padding:14px 16px;background:var(--ps)}
+.done button{border:0;background:var(--pc);color:var(--on);border-radius:12px;padding:12px 20px;font-family:var(--f-display);font-weight:600;font-size:16px;cursor:pointer}
+.done.is button{background:var(--teal)}
+.foot{font-size:13px;color:var(--muted);margin-top:14px}
+.empty{display:flex;flex-direction:column;gap:6px;max-width:60ch}
+.empty h3{font-family:var(--f-display);margin:0;font-size:19px}
+.nextp{display:flex;justify-content:flex-end;margin-top:14px}
+.nextp button{border:0;background:var(--pn);color:var(--on);border-radius:12px;padding:11px 18px;font-family:var(--f-display);font-weight:600;cursor:pointer}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
 </head>
 <body>
 <header class="bar"><div class="wrap gut">
-  <div class="brand"><span class="ss">Simon Says</span><span class="sep">|</span><span class="sr">Seans Rehberim</span></div>
+  <button class="brand" id="brand" type="button" aria-label="Ana ekran"><span class="logo"><i></i><i></i><i></i><i></i></span><span class="ss">Simon Says</span><span class="sr">Seans Rehberim</span></button>
   <button class="back" id="home" type="button" hidden>← Tüm oturumlar</button>
-</div></header>
+</div><div class="stripe"></div></header>
 
-<main class="gut"><div class="wrap" id="view"></div></main>
+<div id="view"></div>
 
 <script>
+const IMG="img/simon-beyin.png";
+const PH=[
+  {n:"1",t:"Seansa hazırlan",e:"Seanstan önce",c:"teal"},
+  {n:"2",t:"Seansı uygula",e:"Seans sırasında",c:"rust"},
+  {n:"3",t:"Seansı tamamla",e:"Seanstan sonra",c:"plum"}];
 const BOOKS=[
-  {k:"c0",tag:"Giriş",name:"Programa başlangıç",sk:"Aile ve çocukla tanışma"},
-  {k:"c1",tag:"Çalışma Kitabı 1",name:"Bu Benim İpucum",sk:"Hatırlama · Çalışma Belleği"},
-  {k:"c2",tag:"Çalışma Kitabı 2",name:"Bunu Yapma!",sk:"Durdurma · Tepki Engelleme"},
-  {k:"c3",tag:"Çalışma Kitabı 3",name:"Dur… Odaklan… Değiştir",sk:"Değiştirme · Bilişsel Esneklik"},
-  {k:"c4",tag:"Çalışma Kitabı 4",name:"Bir Planım Var!",sk:"Planlama · Sonuç Odaklı Düşünme"}
-];
+  {c:"slate",tag:"Giriş",name:"Programa başlangıç",sk:"Aile ve çocukla tanışma"},
+  {c:"teal",tag:"Çalışma Kitabı 1",name:"Bu Benim İpucum",sk:"Hatırlama · Çalışma Belleği"},
+  {c:"rust",tag:"Çalışma Kitabı 2",name:"Bunu Yapma!",sk:"Durdurma · Tepki Engelleme"},
+  {c:"plum",tag:"Çalışma Kitabı 3",name:"Dur… Odaklan… Değiştir",sk:"Değiştirme · Bilişsel Esneklik"},
+  {c:"blue",tag:"Çalışma Kitabı 4",name:"Bir Planım Var!",sk:"Planlama · Sonuç Odaklı Düşünme"}];
 const SESS=[
-  [1,0,"Aileyle Tanışma: Can'ın Hikâyesi","Yalnızca aile","draft"],
+  [1,0,"Aileyle Tanışma: Can'ın Hikâyesi","Yalnızca aile"],[2,0,"Simon'un Hikâyesi","Çocukla ilk oturum"],
+  [3,1,"Simon Diyor ki: Dikkat Et, Rotada Kal","Adım 1 · Oyun"],[4,1,"Sabah DJ'i: İpuçları Her Yerde","Adım 2 · Bağlantı Kurma"],
+  [5,1,"İpucu Atölyesi: Kartlar ve Gizli İşaretler","Adım 3 · Ev Çalışmaları"],[6,1,"Bilek Listeleri ve Hafıza Oyunları","Adım 3 · Ev Çalışmaları"],
+  [7,1,"Bravo, Başardın!","Adım 4 · Bravo"],[8,2,"Simon Diyor ki: Bunu Yapma!","Adım 1 · Oyun"],
+  [9,2,"Dikkat Dağınıklığı Engelleyici Kumanda","Adım 2 · Bağlantı Kurma"],[10,2,"Durmayı Eve Taşımak","Adım 3 · Ev Çalışmaları"],
+  [11,2,"Bravo, Başardın!","Adım 4 · Bravo"],[12,3,"Dur… Odaklan… Değiştir!","Adım 1 · Oyun"],
+  [13,3,"Takım Oyuncusu","Adım 2 · Bağlantı Kurma"],[14,3,"Lütfen Dikkat! ve Sakin Kedi","Adım 3 · Ev Çalışmaları"],
+  [15,3,"Dur, Sakinleş, Düşün","Adım 3 · Ev Çalışmaları"],[16,3,"Bravo, Başardın!","Adım 4 · Bravo"],
+  [17,4,"Bir Planım Var!","Adım 1 · Oyun"],[18,4,"Bir Kazanan Gibi Düşün","Adım 2 · Bağlantı Kurma"],
+  [19,4,"Kendi Oyun Planım","Adım 3 · Ev Çalışmaları"],[20,4,"Bravo, Başardın! ve programın kapanışı","Adım 4 · Bravo"]];
 
-  [2,0,"Simon'un Hikâyesi","Çocukla ilk oturum"],
-  [3,1,"Simon Diyor ki: Dikkat Et, Rotada Kal","Adım 1 · Oyun"],
-  [4,1,"Sabah DJ'i: İpuçları Her Yerde","Adım 2 · Bağlantı Kurma"],
-  [5,1,"İpucu Atölyesi: Kartlar ve Gizli İşaretler","Adım 3 · Ev Çalışmaları"],
-  [6,1,"Bilek Listeleri ve Hafıza Oyunları","Adım 3 · Ev Çalışmaları"],
-  [7,1,"Bravo, Başardın!","Adım 4 · Bravo"],
-  [8,2,"Simon Diyor ki: Bunu Yapma!","Adım 1 · Oyun"],
-  [9,2,"Dikkat Dağınıklığı Engelleyici Kumanda","Adım 2 · Bağlantı Kurma"],
-  [10,2,"Durmayı Eve Taşımak","Adım 3 · Ev Çalışmaları"],
-  [11,2,"Bravo, Başardın!","Adım 4 · Bravo"],
-  [12,3,"Dur… Odaklan… Değiştir!","Adım 1 · Oyun"],
-  [13,3,"Takım Oyuncusu","Adım 2 · Bağlantı Kurma"],
-  [14,3,"Lütfen Dikkat! ve Sakin Kedi","Adım 3 · Ev Çalışmaları"],
-  [15,3,"Dur, Sakinleş, Düşün","Adım 3 · Ev Çalışmaları"],
-  [16,3,"Bravo, Başardın!","Adım 4 · Bravo"],
-  [17,4,"Bir Planım Var!","Adım 1 · Oyun"],
-  [18,4,"Bir Kazanan Gibi Düşün","Adım 2 · Bağlantı Kurma"],
-  [19,4,"Kendi Oyun Planım","Adım 3 · Ev Çalışmaları"],
-  [20,4,"Bravo, Başardın! ve programın kapanışı","Adım 4 · Bravo"]
-];
-/* Oturum içerikleri. g: grup başlığı + maddeler; a: etkinlik; f: kaydedilecek alanlar. pdf: yazdırılacak belge */
-const DATA={1:[
- [ {g:"Randevuda",i:["Aileden çocuksuz gelmesini iste; mümkünse iki ebeveyn birlikte gelsin.","Hikâyeyi önceden verme. \"Bir annenin hikâyesi üzerinden konuşacağız\" demen yeterli."]},
-   {g:"Kendin için",i:["Okuma metnini (s. 11–12) iki kez sesli oku.","5 durağı ve ailenin durumuna en yakın sahneyi işaretle."]},
-   {g:"Yazdır",i:[["Beyin Becerileri Haritası","pdf"],["Beceri Anları Kayıt Sayfası (aileye verilecek)","pdf"],["Oturum Değerlendirme ve Takip Formu","pdf"],["Okuma metni (senin kopyan)","pdf"]]},
-   {g:"Masaya",i:["4 Beceri Kontrol Kartı (Etkinlik 5'e kadar kapalı dursun)","Simon'un Dört Beyin Becerisi görseli","Çalışma Kitapları 1–4","Kalem"]},
-   {g:"Önceki oturumdan gelen",note:"Yok, bu ilk oturum."} ],
- [ {note:"Yaklaşık 60 dakika. Çocuk yok; oturum yalnızca aileyle yapılır."},
-   {a:1,t:"Karşılama",dk:5,ref:"s. 2",i:["\"Evde sizi en çok ne yoruyor?\" diye sor.","Ailenin kullandığı kelimeleri aynen not et.","Bu aşamada çözüm önerme."]},
-   {a:2,t:"Can'ın Hikâyesi",dk:30,ref:"s. 3–5 · okuma metni s. 11–12",mat:"Okuma metni",i:["Her sahnede: oku → aynalama sorusunu sor → ailenin örneğini dinle → beceriye ad ver.","Sahne 1 · Pijamalı Can","Sahne 2 · \"Bu çocuk şımarık\"","Sahne 3 · Annenin akşamı","Sahne 4 · Video oyunu ve cepteki liste","Sahne 5 · Bilek listesi","\"Bu tam bizim çocuk\" cümlesini duyarsan aynen not et."]},
-   {a:3,t:"Beyin Becerileri Haritası",dk:8,ref:"s. 6",mat:"Görsel ve harita",i:["Simon'un Dört Beyin Becerisi görselini göster.","\"Bizim evde\" sütununu ailenin kelimeleriyle doldur.","Güçlü yanlar satırını mutlaka doldur."]},
-   {a:4,t:"Programı tanıt: Siz Koçsunuz",dk:7,ref:"s. 7",mat:"Çalışma Kitapları 1–4",i:["\"Siz Koçsunuz\" mesajını ver.","Kitapları masaya koy.","Koçun iki kuralını anlat.","Koçu belirle ve adını forma yaz."]},
-   {a:5,t:"Beceri Kontrol Kartları",dk:5,ref:"s. 8",mat:"4 Beceri Kontrol Kartı",i:["Kartları yan yana diz.","Her kartı hikâyeye bağla.","\"Hangi kart en çok işimize yarar?\" diye sor, cevabı forma yaz."]},
-   {a:6,t:"Kapanış",dk:3,ref:"s. 9",i:["Dört temel mesajı söyle.","Ev görevini ver.","Çocuğa söylenecek cümleyi yaşına göre seç (6–8 ya da 9–12)."]} ],
- [ {g:"Aileye ver",i:["Beceri Anları Kayıt Sayfası (3 an; en az biri başarı anı olsun)","Çocuğa söylenecek cümle"]},
-   {g:"Formu doldur",i:["Uygulayıcı Notları: öne çıkan beceriler, tanıma cümlesi, hedef adayı ve seçilen kart.","Koç Raporu bu hafta doldurulmaz; aileye yalnızca gösterilir."]},
-   {g:"Sonraki oturum için kaydet",f:[["koc","Koçun adı"],["kart","Seçilen kart"],["hedef","Hedef adayı (Sahne 5)"]]},
-   {g:"2. Oturuma hazırlık",i:["Aile getirecek: Beceri Anları Kayıt Sayfası ve doldurulmuş harita.","Sen hazırlayacaksın: Simon'un Hikâyesi, Bölüm I."]},
-   {done:true} ]
-]};
-const PHASES=[["1","Seansa hazırlan"],["2","Seansı uygula"],["3","Seansı tamamla"]];
-const STATUS={pend:["pend","Hazırlanacak"],draft:["draft","İçerik onayda"]};
+const ICON={
+ phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg>',
+ book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21h15"/></svg>',
+ print:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8V3h10v5"/><rect x="3" y="8" width="18" height="9" rx="2"/><path d="M7 14h10v7H7z"/></svg>',
+ box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg>',
+ back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-5-5 5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg>',
+ hand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v6a3 3 0 0 1-3 3H7l-4-4 4-4h10"/><path d="M14 3l4 4-4 4"/></svg>',
+ form:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h8M9 17h6"/></svg>',
+ save:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
+ next:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'};
+const SK={CB:["Hatırlama","teal"],TE:["Durdurma","rust"],BE:["Değiştirme","plum"],SO:["Planlama","blue"],ALL:["Dört beceri","slate"]};
+const sk=k=>`<span class="sk" style="background:var(--${SK[k][1]})">${SK[k][0]}</span>`;
+
+/* ---- Oturum içerikleri ---- */
+const DATA={1:{
+  facts:["≈ 60 dk","Yalnızca aile","Çocuk katılmaz"],
+  phases:[
+   [ {g:"Randevuda",ic:"phone",i:["Aileden çocuksuz gelmesini iste; mümkünse iki ebeveyn birlikte gelsin.","Hikâyeyi önceden verme. \"Bir annenin hikâyesi üzerinden konuşacağız\" demen yeterli."]},
+     {g:"Kendin için",ic:"book",i:["Okuma metnini (s. 11–12) iki kez sesli oku.","5 durağı ve ailenin durumuna en yakın sahneyi işaretle."]},
+     {g:"Yazdır",ic:"print",i:[["Beyin Becerileri Haritası","pdf"],["Beceri Anları Kayıt Sayfası (aileye verilecek)","pdf"],["Oturum Değerlendirme ve Takip Formu","pdf"],["Can'ın Hikâyesi okuma metni (senin kopyan)","pdf"]]},
+     {g:"Masaya",ic:"box",i:["4 Beceri Kontrol Kartı (Etkinlik 5'e kadar kapalı dursun)","Simon'un Dört Beyin Becerisi görseli","Çalışma Kitapları 1–4","Kalem"]},
+     {g:"Önceki oturumdan gelen",ic:"back",note:"Yok, bu programın ilk oturumu."} ],
+   [ {a:1,t:"Karşılama",dk:5,ref:"s. 2",i:["\"Evde sizi en çok ne yoruyor?\" diye sor.","Ailenin kullandığı kelimeleri aynen not et.","Bu aşamada çözüm önerme; dinle ve özetle."]},
+     {a:2,t:"Can'ın Hikâyesi",dk:30,ref:"s. 3–5 · okuma metni s. 11–12",mat:"Okuma metni",i:["Her sahnede: oku → aynalama sorusunu sor → ailenin örneğini dinle → beceriye ad ver.",["Sahne 1 · Pijamalı Can","CB"],["Sahne 2 · \"Bu çocuk şımarık\""],["Sahne 3 · Annenin akşamı","ALL"],["Sahne 4 · Video oyunu ve cepteki liste"],["Sahne 5 · Bilek listesi"],"\"Bu tam bizim çocuk\" cümlesini duyarsan aynen not et."]},
+     {a:3,t:"Beyin Becerileri Haritası",dk:8,ref:"s. 6",mat:"Görsel ve harita",i:["Simon'un Dört Beyin Becerisi görselini göster.","\"Bizim evde\" sütununu ailenin kelimeleriyle doldur.","Güçlü yanlar satırını mutlaka doldur."]},
+     {a:4,t:"Programı tanıt: Siz Koçsunuz",dk:7,ref:"s. 7",mat:"Çalışma Kitapları 1–4",i:["\"Siz Koçsunuz\" mesajını ver.","Kitapları masaya koy.","Koçun iki kuralını anlat.","Koçu belirle ve adını forma yaz."]},
+     {a:5,t:"Beceri Kontrol Kartları",dk:5,ref:"s. 8",mat:"4 Beceri Kontrol Kartı",i:["Kartları yan yana diz.","Her kartı hikâyeye bağla.","\"Hangi kart en çok işimize yarar?\" diye sor, cevabı forma yaz."]},
+     {a:6,t:"Kapanış",dk:3,ref:"s. 9",i:["Dört temel mesajı söyle.","Ev görevini ver.","Çocuğa söylenecek cümleyi yaşına göre seç (6–8 ya da 9–12)."]} ],
+   [ {g:"Aileye ver",ic:"hand",i:["Beceri Anları Kayıt Sayfası (3 an; en az biri başarı anı olsun)","Çocuğa söylenecek cümle"]},
+     {g:"Formu doldur",ic:"form",i:["Uygulayıcı Notları: öne çıkan beceriler, tanıma cümlesi, hedef adayı ve seçilen kart.","Koç Raporu bu hafta doldurulmaz; aileye yalnızca gösterilir."]},
+     {g:"Sonraki oturum için kaydet",ic:"save",f:[["koc","Koçun adı"],["kart","Seçilen Beceri Kontrol Kartı"],["hedef","Hedef adayı (Sahne 5)"]]},
+     {g:"2. Oturuma hazırlık",ic:"next",i:["Aile getirecek: Beceri Anları Kayıt Sayfası ve doldurulmuş harita.","Sen hazırlayacaksın: Simon'un Hikâyesi, Bölüm I."]},
+     {done:true} ]
+  ]}};
+const ACT_C=["slate","teal","rust","plum","blue","teal-d"];
+
+/* ---- saklama: yalnızca bu cihaz ---- */
+const mem={};
+const st=k=>{if(k in mem)return mem[k];try{const v=localStorage.getItem("ssr:"+k);return v===null?null:JSON.parse(v)}catch(e){return null}};
+const put=(k,v)=>{mem[k]=v;try{localStorage.setItem("ssr:"+k,JSON.stringify(v))}catch(e){}};
 const $=id=>document.getElementById(id);
-const bv=b=>`--bc:var(--${BOOKS[b].k});--bs:var(--${BOOKS[b].k}s)`;
+const cv=c=>`--bc:var(--${c});--bs:var(--${c}-s)`;
+const pv=p=>`--pc:var(--${PH[p].c});--ps:var(--${PH[p].c}-s)`;
+
+function keys(n,p){const out=[];const P=DATA[n].phases[p];P.forEach((b,bi)=>{(b.i||[]).forEach((_,i)=>out.push(`s${n}p${p}b${bi}i${i}`))});return out}
+function pct(n,p){const k=keys(n,p);if(!k.length)return 0;return Math.round(100*k.filter(x=>st(x)).length/k.length)}
 
 function home(){
   $("home").hidden=true;
-  let h=`<div class="intro"><h1>Hangi oturuma hazırlanıyorsun?</h1>
-  <p>Her oturum üç bölümden oluşur: seansa hazırlan, seansı uygula, seansı tamamla. Ayrıntılı açıklamalar için basılı kılavuzu kullan.</p>
-  <div class="legend">${BOOKS.map(b=>`<span><i class="dot" style="background:var(--${b.k})"></i>${b.tag}</span>`).join("")}</div></div>`;
+  let h=`<section class="hero"><div class="wrap gut"><img src="${IMG}" alt="Simon ve dört beyin becerisi: Çalışma Belleği, Bilişsel Esneklik, Tepki Engelleme, Sonuç Odaklı Düşünme">
+  <div><h1>Hangi oturuma <span>hazırlanıyorsun?</span></h1>
+  <p>Basılı uygulama kılavuzunun yanında kullanılır. Her oturumda ne yapacağını üç adımda gösterir; ayrıntı için kılavuzun ilgili sayfasına yönlendirir.</p>
+  <div class="phases">${PH.map(p=>`<span><b style="background:var(--${p.c})">${p.n}</b>${p.t}</span>`).join("")}</div></div></div></section><main class="gut"><div class="wrap">`;
   BOOKS.forEach((b,bi)=>{
-    const list=SESS.filter(s=>s[1]===bi);
-    h+=`<section class="book" style="${bv(bi)}"><div class="bookh"><span class="tag">${b.tag}</span><h2>${b.name}</h2><span class="sk">${b.sk}</span></div><div class="grid">`+
-      list.map(s=>{const st=STATUS[s[4]||"pend"];return `<button class="card" type="button" data-s="${s[0]}"><span class="num">${s[0]}</span><span class="ct"><b>${s[2]}</b><span class="meta">${s[3]}</span><span class="pill ${st[0]}">${st[1]}</span></span></button>`}).join("")+`</div></section>`;
+    h+=`<section class="book" style="${cv(b.c)}"><div class="bookh"><span class="tag">${b.tag}</span><h2>${b.name}</h2><span class="sk">${b.sk}</span></div><div class="grid">`+
+    SESS.filter(s=>s[1]===bi).map(s=>{const r=!!DATA[s[0]];const d=st(`s${s[0]}done`);
+      const pill=d?`<span class="pill doneP">✓ Tamamlandı</span>`:r?`<span class="pill ready">Hazır</span>`:`<span class="pill pend">Hazırlanacak</span>`;
+      return `<button class="card ${r?'ready':''}" type="button" data-s="${s[0]}"><span class="num">${s[0]}</span><span class="ct"><b>${s[2]}</b><span class="meta">${s[3]}</span>${pill}</span></button>`}).join("")+`</div></section>`;
   });
-  $("view").innerHTML=h;
+  $("view").innerHTML=h+`</div></main>`;
   try{history.replaceState(null,"","#ana")}catch(e){}
 }
-function session(n,ph=0){
-  const s=SESS[n-1], b=BOOKS[s[1]];
-  $("home").hidden=false;
-  $("view").innerHTML=`<div style="${bv(s[1])}">
-   <div class="sv-head"><span class="sv-num">${n}</span><div><div class="k">${b.tag} · ${s[3]}</div><h1>${s[2]}</h1></div></div>
-   <div class="tabs" role="tablist">${PHASES.map((p,i)=>`<button class="tab" role="tab" type="button" data-ph="${i}" aria-selected="${i===ph}"><span class="n">BÖLÜM ${p[0]}</span><b>${p[1]}</b></button>`).join("")}</div>
-   <div class="panel">${DATA[n]?phase(n,ph):`<div class="empty"><h3>${PHASES[ph][1]}: hazırlanıyor</h3>
-   <p style="margin:0">Bu oturumun kontrol listesi henüz eklenmedi. İçerik, uygulama kılavuzu ve çalışma kitabından oturuma özel olarak çıkarılacak.</p></div>`}</div></div>`;
-  updProg();
-  try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
-  window.scrollTo({top:0});
-}
-const store={get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let mem={};
-const st=k=>mem[k]!==undefined?mem[k]:store.get(k);
-const put=(k,v)=>{mem[k]=v;store.set(k,v)};
-function item(id,txt,pdf){const on=st(id)?"checked":"";return `<label class="chk"><input type="checkbox" data-k="${id}" ${on}><span>${txt}</span>${pdf?`<span class="pdf" title="PDF bağlantısı yayında eklenecek">PDF</span>`:""}</label>`}
-function phase(n,ph){
-  const P=DATA[n][ph]; let h=`<div class="prog"><span id="pt"></span><div class="track"><div class="fill" id="pf"></div></div></div>`;
+
+function item(id,txt,extra){const on=st(id)?"checked":"";return `<label class="chk"><input type="checkbox" data-k="${id}" ${on}><span class="lt">${txt}${extra&&extra!=="pdf"?sk(extra):""}</span>${extra==="pdf"?`<span class="pdf">PDF</span>`:""}</label>`}
+
+function phaseHTML(n,p){
+  const P=DATA[n].phases[p]; let h="";
+  if(p===1){
+    const acts=P.filter(b=>b.a);
+    h+=`<div class="tl" aria-label="Oturum akışı">${acts.map((b,i)=>`<button type="button" data-jump="a${b.a}" style="flex:${b.dk};background:var(--${ACT_C[i%ACT_C.length]})" title="${b.t}"><b>${b.a}</b><span>${b.dk} dk</span></button>`).join("")}</div>`;
+  }
   P.forEach((b,bi)=>{
-    const base=`s${n}p${ph}b${bi}`;
-    if(b.a){h+=`<div class="act"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b></div><div class="tags"><span>${b.dk} dk</span>${b.mat?`<span class="mat">Materyal: ${b.mat}</span>`:""}<span class="ref">Kılavuz ${b.ref}</span></div>${b.i.map((x,i)=>item(base+"i"+i,x)).join("")}</div>`;return}
-    if(b.done){const d=st(`s${n}done`);h+=`<button class="done-btn" id="doneBtn" type="button">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button>`;return}
-    h+=`<div class="grp">${b.g?`<h4>${b.g}</h4>`:""}${b.note?`<p style="margin:0 10px;color:var(--muted)">${b.note}</p>`:""}`;
-    if(b.i) h+=b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],true):item(base+"i"+i,x)).join("");
+    const base=`s${n}p${p}b${bi}`;
+    if(b.a){
+      const c=ACT_C[(b.a-1)%ACT_C.length];
+      const ks=b.i.map((_,i)=>base+"i"+i); const dn=ks.filter(k=>st(k)).length;
+      h+=`<article class="act" id="a${b.a}" style="--ac:var(--${c});--as:var(--${c==='teal-d'?'teal':c}-s)"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length}</span></div>
+      <div class="tags"><span class="t-dk">${b.dk} dk</span>${b.mat?`<span class="t-mat">Materyal: ${b.mat}</span>`:""}${b.koc?`<span class="t-koc">${b.koc}</span>`:""}<span>Kılavuz ${b.ref}</span></div>
+      <div class="items">${b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],x[1]):item(base+"i"+i,x)).join("")}</div></article>`;return}
+    if(b.done){const d=st(`s${n}done`);h+=`<div class="done ${d?'is':''}"><button type="button" id="doneBtn">${d?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}</button><span>${d?"Ana ekranda bu oturum tamamlandı olarak görünür.":"Bütün maddeleri bitirdiğinde işaretle."}</span></div>`;return}
+    h+=`<div class="grp"><div class="gh"><span class="gi">${ICON[b.ic]||""}</span><h4>${b.g}</h4></div>`;
+    if(b.note) h+=`<p class="note">${b.note}</p>`;
+    if(b.i) h+=b.i.map((x,i)=>Array.isArray(x)?item(base+"i"+i,x[0],x[1]):item(base+"i"+i,x)).join("");
     if(b.f) h+=b.f.map(f=>`<div class="field"><label for="f${n}${f[0]}">${f[1]}</label><input id="f${n}${f[0]}" data-f="s${n}f${f[0]}" value="${(st(`s${n}f${f[0]}`)||"").replace(/"/g,"&quot;")}"></div>`).join("");
     h+=`</div>`;
   });
-  return h+`<p class="preview">Önizleme · İşaretler ve notlar yalnızca bu cihazda saklanır.</p>`;
+  if(p<2) h+=`<div class="nextp" style="--pn:var(--${PH[p+1].c})"><button type="button" data-ph="${p+1}">Sonraki: ${PH[p+1].t} →</button></div>`;
+  return h+`<p class="foot">İşaretler ve notlar yalnızca bu cihazda saklanır.</p>`;
 }
-function updProg(){
-  const all=[...document.querySelectorAll('.panel input[type=checkbox]')]; if(!all.length||!$("pt")) return;
-  const d=all.filter(x=>x.checked).length; $("pt").textContent=`${d} / ${all.length}`; $("pf").style.width=(100*d/all.length)+"%";
+
+let curS=0,curP=0;
+function session(n,p=0){
+  curS=n;curP=p;
+  const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n];
+  $("home").hidden=false;
+  const tabs=PH.map((ph,i)=>{const v=D?pct(n,i):0;return `<button class="tab" role="tab" type="button" data-ph="${i}" aria-selected="${i===p}" style="${pv(i)}"><span class="ring" style="--p:${v}"><b>${ph.n}</b></span><span class="tx"><small>BÖLÜM ${ph.n}</small><strong>${ph.t}</strong><em>${ph.e}</em></span></button>`}).join("");
+  $("view").innerHTML=`<main class="gut"><div class="wrap">
+   <section class="shead ${s[1]===0?'multi':''}" style="${cv(b.c)}"><span class="big">${n}</span><div><div class="k">${b.tag} · ${s[3]}</div><h1>${s[2]}</h1>${D?`<div class="facts">${D.facts.map(f=>`<span>${f}</span>`).join("")}</div>`:""}</div>${n===1?`<img src="${IMG}" alt="Simon ve dört beyin becerisi">`:""}</section>
+   <div class="tabs" role="tablist">${tabs}</div>
+   <div class="panel" style="${pv(p)}">${D?phaseHTML(n,p):`<div class="empty"><h3>${PH[p].t}: hazırlanıyor</h3><p style="margin:0">Bu oturumun kontrol listesi henüz eklenmedi.</p></div>`}</div>
+  </div></main>`;
+  try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
 }
-document.addEventListener("change",e=>{
-  if(e.target.dataset.k){put(e.target.dataset.k,e.target.checked);updProg()}
-});
-document.addEventListener("input",e=>{if(e.target.dataset.f) put(e.target.dataset.f,e.target.value)});
+function refresh(){
+  if(!DATA[curS])return;
+  document.querySelectorAll(".tab").forEach((t,i)=>t.querySelector(".ring").style.setProperty("--p",pct(curS,i)));
+  document.querySelectorAll("[data-ok]").forEach(el=>{const b=el.dataset.ok;const all=[...document.querySelectorAll(`[data-k^="${b}i"]`)];el.textContent=all.filter(x=>x.checked).length+"/"+all.length});
+}
 document.addEventListener("click",e=>{
-  if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));e.target.textContent=st(k)?"✓ Seans tamamlandı":"Seansı tamamlandı olarak işaretle"}
+  const c=e.target.closest("[data-s]"); if(c){session(+c.dataset.s);window.scrollTo({top:0});return}
+  const t=e.target.closest("[data-ph]"); if(t){session(curS,+t.dataset.ph);document.querySelector(".tabs").scrollIntoView({block:"start",behavior:"smooth"});return}
+  const j=e.target.closest("[data-jump]"); if(j){$(j.dataset.jump).scrollIntoView({behavior:"smooth"});return}
+  if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));session(curS,curP);return}
 });
-let curS=0;
-document.addEventListener("click",e=>{
-  const c=e.target.closest("[data-s]"); if(c){curS=+c.dataset.s; session(curS);}
-  const t=e.target.closest("[data-ph]"); if(t) session(curS,+t.dataset.ph);
-});
-$("home").onclick=home;
+document.addEventListener("change",e=>{if(e.target.dataset.k){put(e.target.dataset.k,e.target.checked);refresh()}});
+document.addEventListener("input",e=>{if(e.target.dataset.f)put(e.target.dataset.f,e.target.value)});
+$("home").onclick=()=>{home();window.scrollTo({top:0})};
+$("brand").onclick=()=>{home();window.scrollTo({top:0})};
 const m=location.hash.match(/^#oturum-(\d+)$/);
-if(m&&+m[1]>=1&&+m[1]<=20){curS=+m[1];session(curS)} else home();
+if(m&&+m[1]>=1&&+m[1]<=20)session(+m[1]);else home();
 </script>
 </body>
 </html>
