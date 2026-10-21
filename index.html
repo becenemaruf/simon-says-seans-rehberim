@@ -215,6 +215,8 @@ h1,h2,h3{text-wrap:balance}
 .acth .ok{font-size:13px;font-weight:700}
 .act .tags{padding:12px 16px 0}
 .act .items{padding:6px 6px 10px}
+.act .chk input:checked~.lt{text-decoration:none;color:var(--ink);font-weight:600}
+.act .chk:has(input:checked){background:var(--pink-s)}
 
 .done{margin-top:18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:var(--bw) solid var(--ink);border-radius:16px;padding:14px 16px;background:var(--yellow-s)}
 .done .btn{--bg:var(--yellow)}
@@ -228,6 +230,48 @@ h1,h2,h3{text-wrap:balance}
 .reset .rb{display:flex;gap:10px;flex-wrap:wrap}
 .reset .ry{--bg:var(--red);color:var(--paper)}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:10;background:var(--yellow);color:var(--ink);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);border-radius:999px;padding:10px 20px;font-weight:700}
+/* bilgi bandı */
+.info{padding-block:22px 0}
+.info .wrap{background:var(--navy-2);border:2px solid var(--navy-3);border-radius:20px;padding:18px 20px;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.info h2{font-family:var(--f-display);font-weight:400;font-size:19px;margin:6px 0 6px;line-height:1.2}
+.info p{margin:0;color:var(--soft);font-size:14.5px}
+.info .m{border:2px solid var(--navy-3);border-radius:14px;padding:12px 14px;background:var(--navy)}
+.info .m b{display:inline-block;font-size:13px;font-weight:700;color:var(--ink);background:var(--mc);border:2px solid var(--ink);border-radius:8px;padding:1px 9px;margin-bottom:6px}
+@media (max-width:900px){.info .wrap{grid-template-columns:1fr}}
+.pbtn{--bg:var(--yellow);display:inline-flex;align-items:center;gap:8px;font-size:14px;padding:9px 14px}
+.pbtn svg{width:18px;height:18px}
+.selc{font-size:13px;font-weight:700;border:2px solid var(--ink);border-radius:999px;padding:3px 10px;background:var(--pink-s);color:var(--ink)}
+.uhint{font-size:14px;color:var(--muted);margin:-4px 0 14px;max-width:80ch}
+.ubar .pbtn{margin-left:auto}
+.ubar .wake{margin-left:0}
+
+/* yazdırma: A4 seans planı */
+#print{display:none}
+@media print{
+  @page{size:A4;margin:12mm 12mm 14mm}
+  html,body{background:#fff!important;color:#000}
+  body::before{display:none}
+  body>*:not(#print){display:none!important}
+  #print{display:block;font-family:var(--f-body);font-size:10.5pt;line-height:1.35;color:#000}
+  .pr-h{display:flex;align-items:center;gap:12px;border-bottom:2px solid #000;padding-bottom:6px}
+  .pr-h img{height:30px}
+  .pr-h div{flex:1}
+  .pr-h small{display:block;font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase}
+  .pr-h strong{font-family:var(--f-display);font-weight:400;font-size:15pt;line-height:1.15}
+  .pr-h .n{font-family:var(--f-display);font-size:24pt;border:2px solid #000;border-radius:8px;padding:0 10px}
+  .pr-f{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 16px;margin:8px 0 4px;font-size:9.5pt}
+  .pr-f span{border-bottom:1px solid #000;padding-bottom:2px}
+  .pr-sec{margin-top:9px;break-inside:avoid}
+  .pr-sec h3{font-size:9pt;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;border-bottom:1px solid #999;padding-bottom:2px}
+  .pr-sec p{margin:2px 0}
+  .pr-act{margin:5px 0 2px;break-inside:avoid}
+  .pr-act .t{font-weight:700}
+  .pr-act .t em{font-style:normal;font-weight:400;font-size:9pt}
+  .pr-box{display:flex;gap:7px;align-items:flex-start;margin:2px 0 2px 14px}
+  .pr-box::before{content:"";width:10px;height:10px;border:1.3px solid #000;border-radius:2px;flex-shrink:0;margin-top:3px}
+  .pr-line{border-bottom:1px solid #999;height:18px}
+  .pr-foot{margin-top:10px;font-size:8pt;color:#444;border-top:1px solid #999;padding-top:4px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
 </style>
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
@@ -238,6 +282,7 @@ h1,h2,h3{text-wrap:balance}
   <button class="back" id="home" type="button" hidden>← Tüm oturumlar</button>
 </div></header>
 <div id="view"></div>
+<div id="print" aria-hidden="true"></div>
 
 <script>
 const BOOKS=[
@@ -335,6 +380,12 @@ function home(){
     return r?`<button class="card paper" type="button" data-s="${s[0]}"><span class="num">${s[0]}</span><span class="ct"><b>${s[2]}</b><span class="meta">${s[3]}</span><span class="pill ${d?'ok':'go'}">${d?"✓ Tamamlandı (bu cihaz)":"Hazır"}</span></span></button>`
       :`<button class="card paper off" type="button" disabled aria-disabled="true"><span class="num">${s[0]}</span><span class="ct"><b>${s[2]}</b><span class="meta">${s[3]}</span><span class="pill">Hazırlanacak</span></span></button>`}).join("");
   $("view").innerHTML=`
+  <section class="info gut"><div class="wrap">
+    <div><div class="eyebrow">Bu portal hakkında</div><h2>Kılavuzun yanında bir destek alanı</h2>
+      <p>Eğitimde öğrendiğiniz ve kılavuzda yer alan uygulamayı tekrar etmez; seansa hazırlanmanızı kolaylaştırır. Tablet kullanıyorsanız oturumu buradan izleyebilirsiniz, ancak seans sırasında ekranda işaretleme yapmak pratikte zordur. Önerimiz: seanstan önce hatırlatıcı olarak ihtiyaç duyduğunuz maddeleri seçin, seans planını yazdırın ve seansta notluğunuzda kullanın.</p></div>
+    <div class="m" style="--mc:var(--pink)"><b>Seans modu</b><p>Oturum akışının özeti: her etkinlik için süre, materyal, Koç durumu ve en önemli yönlendirmeler.</p></div>
+    <div class="m" style="--mc:var(--yellow)"><b>Ayrıntılı liste</b><p>Seçim alanı: seansta kullanmak istediğiniz maddeleri işaretleyin; seçtikleriniz yazdırılabilir seans planına aktarılır.</p></div>
+  </div></section>
   <section class="hero gut"><div class="wrap">
     <div>
       <div class="eyebrow">Uygulayıcı için</div>
@@ -407,7 +458,9 @@ function apply(n){
   if(curA>=acts.length)curA=0;
   const tl=`<div class="tl" aria-label="Oturum akışı">${acts.map(([b],i)=>`<button type="button" data-act="${i}" style="flex:${b.dk}" title="${esc(b.t)}" aria-current="${uMode==="seans"&&i===curA}"><b>${b.a}</b><span>${b.dk} dk</span></button>`).join("")}</div><p class="tlnote">Süreler kesin değil, tahmini öneridir.</p>`;
   const tags=b=>`<div class="tags"><span class="t-dk">${b.dk} dk</span>${b.mat?`<span class="t-mat">Materyal: ${b.mat}</span>`:""}${b.koc?`<span class="t-koc">${b.koc}</span>`:""}<span>Kılavuz ${b.ref}</span></div>`;
-  const bar=`<div class="ubar"><div class="seg" role="group" aria-label="Görünüm"><button type="button" data-um="seans" aria-pressed="${uMode==="seans"}">Seans modu</button><button type="button" data-um="liste" aria-pressed="${uMode==="liste"}">Ayrıntılı liste</button></div>${"wakeLock" in navigator?`<label class="wake"><input type="checkbox" id="wakeT" ${wakeLock?"checked":""}> Ekran açık kalsın</label>`:""}</div>`;
+  const nSel=keys(n,1).filter(k=>st(k)).length;
+  const bar=`<div class="ubar"><div class="seg" role="group" aria-label="Görünüm"><button type="button" data-um="seans" aria-pressed="${uMode==="seans"}">Seans modu</button><button type="button" data-um="liste" aria-pressed="${uMode==="liste"}">Ayrıntılı liste</button></div><span class="selc" id="selc">${nSel} madde seçildi</span>${"wakeLock" in navigator?`<label class="wake"><input type="checkbox" id="wakeT" ${wakeLock?"checked":""}> Ekran açık kalsın</label>`:""}<button type="button" class="btn pbtn" id="printBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8V3h10v5"/><rect x="3" y="8" width="18" height="9" rx="2"/><path d="M7 14h10v7H7z"/></svg>Yazdır / PDF olarak kaydet</button></div>
+  <p class="uhint">${uMode==="liste"?"Seansta hatırlatıcı olarak kullanmak istediğin maddeleri seç. Yalnızca seçtiklerin, başında boş kutuyla seans planına aktarılır.":"Akışın özeti. Seans planına madde eklemek için Ayrıntılı liste'ye geç."} Yazdır penceresinde hedef olarak "PDF olarak kaydet"i seçebilirsin.</p>`;
   let body="";
   if(uMode==="seans"){
     const [b]=acts[curA],ki=(KEY[n]&&KEY[n][b.a])||[0];
@@ -417,7 +470,7 @@ function apply(n){
       <div class="nav"><button class="btn" type="button" data-step="-1" ${curA===0?"disabled":""}>← Önceki</button><button class="btn nx" type="button" data-step="1" ${curA===acts.length-1?"disabled":""}>${curA===acts.length-1?"Son etkinlik":"Sonraki →"}</button></div>`;
   }else{
     body=acts.map(([b,bi])=>{const base=`s${n}p1b${bi}`,ks=b.i.map((_,i)=>base+"i"+i),dn=ks.filter(k=>st(k)).length;
-      return `<article class="act" id="a${b.a}"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length}</span></div>${tags(b)}<div class="items">${b.i.map((x,i)=>item(base+"i"+i,x)).join("")}</div></article>`}).join("");
+      return `<article class="act" id="a${b.a}"><div class="acth"><span class="an">${b.a}</span><b>${b.t}</b><span class="ok" data-ok="${base}">${dn}/${ks.length} seçili</span></div>${tags(b)}<div class="items">${b.i.map((x,i)=>item(base+"i"+i,x)).join("")}</div></article>`}).join("");
   }
   return bar+tl+body}
 
@@ -435,9 +488,33 @@ function session(n,p=0){
   </div></main>`;
   try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
 }
+function printPlan(n){
+  const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n],P=D.phases;
+  const plain=x=>txt(x);
+  const g0=P[0].filter(x=>(x.ic==="print"||x.ic==="box")&&x.i);
+  const take=g0.map(g=>`<p><b>${g.g}:</b> ${g.i.map(plain).join(" · ")}</p>`).join("");
+  const pg=P[0].find(x=>x.prev);
+  let prev="";
+  if(pg){const v=pg.pf.map(f=>[f[1],st(`s${pg.prev}f${f[0]}`)]).filter(x=>x[1]);prev=`<div class="pr-sec"><h3>${pg.prev}. Oturumdan gelen</h3>${v.length?v.map(x=>`<p>${x[0]}: <b>${esc(x[1])}</b></p>`).join(""):""}${(pg.i||[]).map(x=>`<div class="pr-box">${plain(x)}</div>`).join("")}</div>`}
+  const acts=P[1].map((x,bi)=>[x,bi]).filter(x=>x[0].a);
+  const flow=acts.map(([a,bi])=>{const sel=a.i.map((x,i)=>[x,i]).filter(([x,i])=>st(`s${n}p1b${bi}i${i}`));
+    return `<div class="pr-act"><div class="t">${a.a}. ${a.t} <em>· ${a.dk} dk · Kılavuz ${a.ref}${a.koc?" · "+a.koc:""}${a.mat?" · "+a.mat:""}</em></div>${sel.map(([x])=>`<div class="pr-box">${plain(x)}</div>`).join("")}</div>`}).join("");
+  const after=P[2].filter(x=>x.i&&!x.f&&x.ic!=="form").map(g=>`<p><b>${g.g}:</b> ${g.i.map(plain).join(" ")}</p>`).join("");
+  const sv=P[2].find(x=>x.f);
+  const fields=sv?sv.f.map(f=>`<span>${f[1]}: </span>`).join(""):"";
+  $("print").innerHTML=`<div class="pr-h"><img src="${document.querySelector('.logo img').src}" alt=""><div><small>Seans planı · ${b.tag} · ${s[3]}</small><strong>${s[2]}</strong></div><span class="n">${n}</span></div>
+   <div class="pr-f"><span>Tarih:</span><span>Çocuk kodu:</span><span>Koç:</span></div>
+   <div class="pr-sec"><h3>Seanstan önce · yanına al</h3>${take}</div>${prev}
+   <div class="pr-sec"><h3>Seans akışı (süreler tahminidir)</h3>${flow}</div>
+   <div class="pr-sec"><h3>Seans sonrası</h3>${after}${fields?`<div class="pr-f" style="grid-template-columns:1fr">${fields}</div>`:""}</div>
+   <div class="pr-sec"><h3>Notlar</h3><div class="pr-line"></div><div class="pr-line"></div><div class="pr-line"></div></div>
+   <p class="pr-foot">Simon Says · Seans Rehberim · ${n}. Oturum. Ayrıntılar için basılı Uygulama Kılavuzu'na bakınız.</p>`;
+  try{window.print()}catch(e){}
+}
 function refresh(){
   document.querySelectorAll(".tab").forEach((t,i)=>t.querySelector(".ring").style.setProperty("--p",pct(curS,i)));
-  document.querySelectorAll("[data-ok]").forEach(el=>{const a=[...document.querySelectorAll(`[data-k^="${el.dataset.ok}i"]`)];el.textContent=a.filter(x=>x.checked).length+"/"+a.length});
+  document.querySelectorAll("[data-ok]").forEach(el=>{const a=[...document.querySelectorAll(`[data-k^="${el.dataset.ok}i"]`)];el.textContent=a.filter(x=>x.checked).length+"/"+a.length+" seçili"});
+  const sc=$("selc");if(sc)sc.textContent=keys(curS,1).filter(k=>st(k)).length+" madde seçildi";
 }
 function clearSession(n,notes){
   const re=new RegExp(`^s${n}(p\\d|q\\d|done${notes?"|f":""})`);
@@ -462,6 +539,7 @@ document.addEventListener("click",e=>{
   const r=e.target.closest("[data-reset]");if(r){const n=curS;
     if(r.dataset.reset==="yes"){const notes=$("rNotes")&&$("rNotes").checked;clearSession(n,notes);curA=0;session(n,0);top0();toast(notes?"İşaretler ve notlar temizlendi":"İşaretler temizlendi")}
     else{noReset[n]=true;r.closest(".reset").remove()}return}
+  if(e.target.closest("#printBtn")){if(!keys(curS,1).some(k=>st(k)))toast("Henüz madde seçmedin; plan yalnızca akışla yazdırılır");printPlan(curS);return}
   if(e.target.id==="doneBtn"){const k=`s${curS}done`;put(k,!st(k));delete noReset[curS];session(curS,curP);return}
 });
 document.addEventListener("change",e=>{const k=e.target.dataset.k;if(k){put(k,e.target.checked);refresh();return}if(e.target.id==="wakeT")setWake(e.target.checked)});
