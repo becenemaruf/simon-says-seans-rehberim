@@ -245,32 +245,47 @@ h1,h2,h3{text-wrap:balance}
 .ubar .pbtn{margin-left:auto}
 .ubar .wake{margin-left:0}
 
-/* yazdırma: A4 seans planı */
+/* yazdırma: A4 seans planı (kenar boşluğu sayfa ayarından bağımsız: üst/alt @page, yanlar iç boşluk) */
 #print{display:none}
 @media print{
-  @page{size:A4;margin:12mm 12mm 14mm}
-  html,body{background:#fff!important;color:#000}
+  @page{size:A4;margin:12mm 0 11mm}
+  :root{color-scheme:light;background:#fff!important}
+  html,body{background:#fff!important;background-image:none!important;color:#111;padding:0!important;margin:0!important}
   body::before{display:none}
   body>*:not(#print){display:none!important}
-  #print{display:block;font-family:var(--f-body);font-size:10.5pt;line-height:1.35;color:#000}
-  .pr-h{display:flex;align-items:center;gap:12px;border-bottom:2px solid #000;padding-bottom:6px}
-  .pr-h img{height:30px}
-  .pr-h div{flex:1}
-  .pr-h small{display:block;font-size:8.5pt;letter-spacing:.08em;text-transform:uppercase}
-  .pr-h strong{font-family:var(--f-display);font-weight:400;font-size:15pt;line-height:1.15}
-  .pr-h .n{font-family:var(--f-display);font-size:24pt;border:2px solid #000;border-radius:8px;padding:0 10px}
-  .pr-f{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px 16px;margin:8px 0 4px;font-size:9.5pt}
-  .pr-f span{border-bottom:1px solid #000;padding-bottom:2px}
-  .pr-sec{margin-top:9px;break-inside:avoid}
-  .pr-sec h3{font-size:9pt;letter-spacing:.1em;text-transform:uppercase;margin:0 0 4px;border-bottom:1px solid #999;padding-bottom:2px}
-  .pr-sec p{margin:2px 0}
-  .pr-act{margin:5px 0 2px;break-inside:avoid}
-  .pr-act .t{font-weight:700}
-  .pr-act .t em{font-style:normal;font-weight:400;font-size:9pt}
-  .pr-box{display:flex;gap:7px;align-items:flex-start;margin:2px 0 2px 14px}
-  .pr-box::before{content:"";width:10px;height:10px;border:1.3px solid #000;border-radius:2px;flex-shrink:0;margin-top:3px}
-  .pr-line{border-bottom:1px solid #999;height:18px}
-  .pr-foot{margin-top:10px;font-size:8pt;color:#444;border-top:1px solid #999;padding-top:4px}
+  #print{display:block;padding:0 17mm;font-family:var(--f-body);font-size:10pt;line-height:1.4;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pr-h{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:10px 14px;border:2px solid #111;border-radius:12px}
+  .pr-h img{height:34px;display:block}
+  .pr-h small{display:block;font-size:7.5pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#555}
+  .pr-h strong{display:block;font-family:var(--f-display);font-weight:400;font-size:15pt;line-height:1.15;margin-top:2px}
+  .pr-h .n{font-family:var(--f-display);font-size:22pt;line-height:1;width:46px;height:46px;border-radius:10px;display:grid;place-items:center;background:var(--bcp);color:var(--btp);border:2px solid #111}
+  .pr-stripe{display:flex;height:4px;margin:6px 4px 0;border-radius:4px;overflow:hidden}
+  .pr-stripe i{flex:1}
+  .pr-f{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:14px;margin:12px 0 2px}
+  .pr-f div{font-size:7.5pt;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#555;border-bottom:1.2px solid #111;padding-bottom:10px}
+  .pr-sec{margin-top:10px}
+  .pr-sec h3{display:flex;align-items:center;gap:8px;font-size:8.5pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin:0 0 7px}
+  .pr-sec h3 i{width:12px;height:12px;border-radius:3px;border:1.5px solid #111;background:var(--sc)}
+  .pr-sec h3::after{content:"";flex:1;height:1px;background:#bbb}
+  .pr-take{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+  .pr-take div{break-inside:avoid}
+  .pr-take b,.pr-k{display:block;font-size:8pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#555;margin-bottom:2px}
+  .pr-take ul{margin:0;padding-left:14px}
+  .pr-take li{margin:1px 0}
+  .pr-prev{border:1.2px dashed #111;border-radius:8px;padding:6px 10px}
+  .pr-prev p{margin:1px 0}
+  .pr-act{display:grid;grid-template-columns:22px 1fr;gap:2px 9px;padding:5px 0;border-bottom:1px dotted #bbb;break-inside:avoid}
+  .pr-act:last-child{border-bottom:0}
+  .pr-act .no{width:22px;height:22px;border-radius:50%;border:1.5px solid #111;display:grid;place-items:center;font-weight:700;font-size:9pt;background:var(--pink-s)}
+  .pr-act .t{font-weight:700;font-size:10.5pt;padding-top:1px}
+  .pr-act .meta{grid-column:2;font-size:8.5pt;color:#555;margin-top:-2px}
+  .pr-box{grid-column:2;display:flex;gap:8px;align-items:flex-start}
+  .pr-box::before{content:"";width:11px;height:11px;border:1.4px solid #111;border-radius:3px;flex-shrink:0;margin-top:2px;background:#fff}
+  .pr-after p{margin:2px 0}
+  .pr-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px}
+  .pr-fields div{font-size:7.5pt;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#555;border-bottom:1.2px solid #111;padding-bottom:12px}
+  .pr-lines div{border-bottom:1px solid #bbb;height:20px}
+  .pr-foot{margin-top:10px;display:flex;justify-content:space-between;gap:10px;font-size:7.5pt;color:#666;border-top:1px solid #bbb;padding-top:5px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}.card:hover,.btn:hover{transform:none}}
 </style>
@@ -489,26 +504,31 @@ function session(n,p=0){
   try{history.replaceState(null,"","#oturum-"+n)}catch(e){}
 }
 function printPlan(n){
-  const s=SESS[n-1],b=BOOKS[s[1]],D=DATA[n],P=D.phases;
+  const s=SESS[n-1],bi=s[1],b=BOOKS[bi],D=DATA[n],P=D.phases;
   const plain=x=>txt(x);
   const g0=P[0].filter(x=>(x.ic==="print"||x.ic==="box")&&x.i);
-  const take=g0.map(g=>`<p><b>${g.g}:</b> ${g.i.map(plain).join(" · ")}</p>`).join("");
+  const take=g0.map(g=>`<div><b>${g.g}</b><ul>${g.i.map(x=>`<li>${plain(x)}</li>`).join("")}</ul></div>`).join("");
+  const sec=(c,title,body)=>`<div class="pr-sec" style="--sc:var(--${c})"><h3><i></i>${title}</h3>${body}</div>`;
   const pg=P[0].find(x=>x.prev);
   let prev="";
-  if(pg){const v=pg.pf.map(f=>[f[1],st(`s${pg.prev}f${f[0]}`)]).filter(x=>x[1]);prev=`<div class="pr-sec"><h3>${pg.prev}. Oturumdan gelen</h3>${v.length?v.map(x=>`<p>${x[0]}: <b>${esc(x[1])}</b></p>`).join(""):""}${(pg.i||[]).map(x=>`<div class="pr-box">${plain(x)}</div>`).join("")}</div>`}
-  const acts=P[1].map((x,bi)=>[x,bi]).filter(x=>x[0].a);
-  const flow=acts.map(([a,bi])=>{const sel=a.i.map((x,i)=>[x,i]).filter(([x,i])=>st(`s${n}p1b${bi}i${i}`));
-    return `<div class="pr-act"><div class="t">${a.a}. ${a.t} <em>· ${a.dk} dk · Kılavuz ${a.ref}${a.koc?" · "+a.koc:""}${a.mat?" · "+a.mat:""}</em></div>${sel.map(([x])=>`<div class="pr-box">${plain(x)}</div>`).join("")}</div>`}).join("");
-  const after=P[2].filter(x=>x.i&&!x.f&&x.ic!=="form").map(g=>`<p><b>${g.g}:</b> ${g.i.map(plain).join(" ")}</p>`).join("");
+  if(pg){const v=pg.pf.map(f=>[f[1],st(`s${pg.prev}f${f[0]}`)]).filter(x=>x[1]);
+    prev=sec("cream",`${pg.prev}. Oturumdan gelen`,`<div class="pr-prev">${v.map(x=>`<p>${x[0]}: <b>${esc(x[1])}</b></p>`).join("")}${(pg.i||[]).map(x=>`<p>• ${plain(x)}</p>`).join("")}</div>`)}
+  const acts=P[1].map((x,i)=>[x,i]).filter(x=>x[0].a);
+  const flow=acts.map(([a,bi2])=>{const sel=a.i.map((x,i)=>[x,i]).filter(([x,i])=>st(`s${n}p1b${bi2}i${i}`));
+    const meta=[`${a.dk} dk`,`Kılavuz ${a.ref}`,a.koc,a.mat?"Materyal: "+a.mat:""].filter(Boolean).join(" · ");
+    return `<div class="pr-act"><span class="no">${a.a}</span><span class="t">${a.t}</span><span class="meta">${meta}</span>${sel.map(([x])=>`<span class="pr-box">${plain(x)}</span>`).join("")}</div>`}).join("");
+  const after=P[2].filter(x=>x.i&&!x.f&&x.ic!=="form").map(g=>`<p><b>${g.g}:</b> ${g.i.map(plain).join(" · ")}</p>`).join("");
   const sv=P[2].find(x=>x.f);
-  const fields=sv?sv.f.map(f=>`<span>${f[1]}: </span>`).join(""):"";
-  $("print").innerHTML=`<div class="pr-h"><img src="${document.querySelector('.logo img').src}" alt=""><div><small>Seans planı · ${b.tag} · ${s[3]}</small><strong>${s[2]}</strong></div><span class="n">${n}</span></div>
-   <div class="pr-f"><span>Tarih:</span><span>Çocuk kodu:</span><span>Koç:</span></div>
-   <div class="pr-sec"><h3>Seanstan önce · yanına al</h3>${take}</div>${prev}
-   <div class="pr-sec"><h3>Seans akışı (süreler tahminidir)</h3>${flow}</div>
-   <div class="pr-sec"><h3>Seans sonrası</h3>${after}${fields?`<div class="pr-f" style="grid-template-columns:1fr">${fields}</div>`:""}</div>
-   <div class="pr-sec"><h3>Notlar</h3><div class="pr-line"></div><div class="pr-line"></div><div class="pr-line"></div></div>
-   <p class="pr-foot">Simon Says · Seans Rehberim · ${n}. Oturum. Ayrıntılar için basılı Uygulama Kılavuzu'na bakınız.</p>`;
+  const fields=sv?`<div class="pr-fields">${sv.f.map(f=>`<div>${f[1]}</div>`).join("")}</div>`:"";
+  const tot=acts.reduce((t,[a])=>t+a.dk,0);
+  $("print").innerHTML=`<div class="pr-h" style="--bcp:var(--${BK[bi].c});--btp:${BK[bi].t}"><img src="${document.querySelector('.logo img').src}" alt=""><div><small>Seans planı · ${b.tag} · ${s[3]}</small><strong>${s[2]}</strong></div><span class="n">${n}</span></div>
+   <div class="pr-stripe"><i style="background:var(--yellow)"></i><i style="background:var(--pink)"></i><i style="background:var(--teal)"></i><i style="background:var(--red)"></i></div>
+   <div class="pr-f"><div>Tarih</div><div>Çocuk kodu</div><div>Koç</div></div>
+   ${sec("teal","Seanstan önce · yanına al",`<div class="pr-take">${take}</div>`)}${prev}
+   ${sec("pink",`Seans akışı · ≈ ${tot} dk (süreler tahminidir)`,flow)}
+   ${sec("yellow","Seans sonrası",`<div class="pr-after">${after}</div>${fields}`)}
+   ${sec("paper","Notlar",`<div class="pr-lines"><div></div><div></div><div></div></div>`)}
+   <div class="pr-foot"><span>Simon Says · Seans Rehberim · ${n}. Oturum</span><span>Ayrıntılar için basılı Uygulama Kılavuzu</span></div>`;
   try{window.print()}catch(e){}
 }
 function refresh(){
